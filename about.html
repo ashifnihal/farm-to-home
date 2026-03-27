@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Farm to Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 100px 0 60px;
+            text-align: center;
+            color: white;
+        }
+        
+        .about-hero h1 {
+            font-size: 3.5rem;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .about-hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-family: 'Playfair Display', serif;
+            color: #FFD700;
+            text-align: center;
+            margin: 4rem 0 2rem;
+        }
+        
+        .founders-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        .founder-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        
+        .founder-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .founder-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #FFD700;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .founder-name {
+            font-size: 1.8rem;
+            font-family: 'Playfair Display', serif;
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .founder-title {
+            color: #FFD700;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .founder-bio {
+            line-height: 1.8;
+            color: #555;
+            text-align: justify;
+        }
+        
+        .story-section {
+            padding: 4rem 0;
+            background: white;
+        }
+        
+        .story-content {
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 2;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        
+        .story-content p {
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+        
+        .values-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
+        }
+        
+        .value-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .value-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .value-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .value-description {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .timeline-section {
+            padding: 4rem 0;
+            background: white;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .timeline-year {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #FFD700;
+            min-width: 120px;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            padding-left: 2rem;
+            border-left: 3px solid #FFD700;
+        }
+        
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-description {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .stats-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #FFD700;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="premiumGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="mangoGradient" cx="35%" cy="35%">
+                            <stop offset="0%" style="stop-color:#FFF4A3;stop-opacity:1" />
+                            <stop offset="30%" style="stop-color:#FFD54F;stop-opacity:1" />
+                            <stop offset="60%" style="stop-color:#FFB300;stop-opacity:1" />
+                            <stop offset="85%" style="stop-color:#FF8F00;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#E65100;stop-opacity:1" />
+                        </radialGradient>
+                        <filter id="luxuryShadow">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                            <feOffset dx="0" dy="2" result="offsetblur"/>
+                            <feComponentTransfer>
+                                <feFuncA type="linear" slope="0.5"/>
+                            </feComponentTransfer>
+                            <feMerge>
+                                <feMergeNode/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="url(#premiumGold)" stroke-width="3" filter="url(#luxuryShadow)"/>
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="url(#premiumGold)" stroke-width="1" opacity="0.5"/>
+                    <path d="M 50 18 L 35 40 L 41 40 L 50 28 L 59 40 L 65 40 Z" fill="url(#premiumGold)" filter="url(#luxuryShadow)"/>
+                    <path d="M 50 42 Q 59 45, 63 54 Q 65 63, 61 70 Q 56 75, 50 76 Q 44 75, 39 70 Q 35 63, 37 54 Q 41 45, 50 42 Z" fill="url(#mangoGradient)" filter="url(#luxuryShadow)"/>
+                    <ellipse cx="46" cy="51" rx="7" ry="9" fill="#FFF9C4" opacity="0.6"/>
+                    <ellipse cx="47" cy="53" rx="3.5" ry="4.5" fill="#FFFFFF" opacity="0.4"/>
+                    <path d="M 52 68 Q 55 70, 58 67 Q 60 63, 58 60" fill="#E65100" opacity="0.2"/>
+                    <path d="M 50 42 Q 43 37, 38 40 Q 35 43, 38 48 Q 43 53, 50 50 Z" fill="#4CAF50" opacity="1"/>
+                    <path d="M 50 42 Q 47 38, 43 40" fill="#66BB6A" opacity="0.6"/>
+                    <path d="M 43 41 Q 43 45, 45 48" stroke="#2E7D32" stroke-width="1.2" fill="none" opacity="0.8"/>
+                    <text x="50" y="86" font-family="'Playfair Display', serif" font-size="18" font-weight="900" fill="url(#premiumGold)" text-anchor="middle" letter-spacing="3">F&amp;H</text>
+                    <path d="M 32 91 Q 50 93, 68 91" stroke="url(#premiumGold)" stroke-width="1.5" fill="none" opacity="0.7"/>
+                </svg>
+                <div class="logo-text">
+                    <span class="brand-name">
+                        <span class="word-farm">FARM</span>
+                        <span class="word-to">to</span>
+                        <span class="word-home">HOME</span>
+                    </span>
+                    <span class="trademark">®</span>
+                    <span class="tagline">Nature's Gold, Delivered Fresh</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#rent">Rent Trees</a></li>
+                <li><a href="index.html#shop">Shop Mangoes</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+                <li><a href="#" class="cart-icon">🛒 <span class="cart-count">0</span></a></li>
+                <li><a href="#" class="login-btn">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="container">
+            <h1 data-aos="fade-up">About Farm to Home</h1>
+            <p data-aos="fade-up" data-aos-delay="200">A family legacy of three brothers bridging the gap between India's finest mango orchards and your doorstep through technology and tradition</p>
+        </div>
+    </section>
+
+    <!-- Our Story Section -->
+    <section class="story-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Our Story</h2>
+            <div class="story-content" data-aos="fade-up" data-aos-delay="200">
+                <p>
+                    Born and raised in the mango heartland of Chittoor, Andhra Pradesh, the Nihal brothers grew up among sprawling orchards that have been in their family for three generations. The sweet aroma of ripening mangoes, the sight of golden fruits hanging from ancient trees, and the taste of sun-kissed Alphonso mangoes were integral parts of their childhood.
+                </p>
+                <p>
+                    After pursuing engineering degrees from JNTUA (Jawaharlal Nehru Technological University Anantapur), both brothers embarked on successful careers in technology. Ashif became an AI & ML Engineer at a Big4 company, while Arif built his career as an IT professional in Singapore, specializing in operations and supply chain management. Despite their success in the corporate world, they never forgot their roots in the mango orchards of Chittoor.
+                </p>
+                <p>
+                    During their visits home, they witnessed a growing disconnect between urban consumers and authentic farm-fresh produce. City dwellers were paying premium prices for mangoes that had traveled thousands of kilometers, losing their natural sweetness and aroma in cold storage. Meanwhile, their family's orchards produced some of the finest mangoes in India, but lacked the reach to connect directly with consumers who would truly appreciate their quality.
+                </p>
+                <p>
+                    In 2020, inspired by their agricultural heritage and armed with their technical expertise, the Nihal brothers founded Farm to Home. Their vision was simple yet revolutionary: leverage cutting-edge technology to bring the unparalleled taste of tree-ripened Indian mangoes directly to doorsteps across the country, while supporting sustainable farming practices and empowering local farmers.
+                </p>
+                <p>
+                    Ashif's expertise in AI and machine learning enabled the development of precision farming solutions that optimize yield and quality. His algorithms analyze soil conditions, weather patterns, and tree health to ensure each mango reaches peak ripeness. Arif's supply chain expertise ensures that mangoes harvested at dawn reach customers' doorsteps within 48 hours, preserving their natural sweetness and aroma.
+                </p>
+                <p>
+                    Today, Farm to Home stands as a testament to the perfect blend of tradition and technology. We're not just delivering mangoes; we're sharing a piece of our heritage, our passion, and our commitment to quality with every box we send. Each mango carries the legacy of three generations of farming expertise, enhanced by modern technology, and delivered with the care and attention it deserves.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Founders Section -->
+    <section class="founders-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Meet Our Founders</h2>
+            <div class="row g-4 mt-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="founder-card">
+                        <img src="images/team/ashif.jpeg" alt="Ashif Nihal" class="founder-image" style="object-position: center top;">
+                        <h3 class="founder-name">Ashif Nihal</h3>
+                        <p class="founder-title">Co-Founder & Chief Technology Officer</p>
+                        <p class="founder-bio">
+                            <strong>Education:</strong> Bachelor's in Computer Science, JNTUA<br>
+                            <strong>Expertise:</strong> AI & Machine Learning, Precision Farming, Agricultural Technology<br><br>
+                            
+                            Ashif combines his deep technical expertise with his family's agricultural heritage to revolutionize mango farming. His AI-driven precision farming solutions analyze thousands of data points daily—from soil moisture levels to weather patterns—ensuring each tree receives optimal care. His passion for sustainable agriculture and innovation has been instrumental in developing Farm to Home's technology infrastructure, making it possible to monitor tree health, predict harvest times, and ensure quality control at every step.
+                            <br><br>
+                            Beyond technology, Ashif is committed to empowering local farmers with modern tools and knowledge, bridging the gap between traditional farming wisdom and cutting-edge agricultural technology.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="founder-card">
+                        <img src="images/team/arif.jpeg" alt="Arif Nihal" class="founder-image" style="object-position: center top;">
+                        <h3 class="founder-name">Arif Nihal</h3>
+                        <p class="founder-title">Co-Founder & Chief Executive Officer</p>
+                        <p class="founder-bio">
+                            <strong>Education:</strong> Mechanical Engineering, JNTUA<br>
+                            <strong>Expertise:</strong> Operations Management, Supply Chain, Global Logistics<br><br>
+                            
+                            Arif brings a global perspective and extensive experience in operations and supply chain management to Farm to Home. His time in Singapore exposed him to world-class logistics systems, which he has adapted to create Farm to Home's efficient farm-to-doorstep delivery network. His engineering background and operational expertise ensure that every mango reaches customers in perfect condition, maintaining the cold chain and quality standards throughout the journey.
+                            <br><br>
+                            Arif's vision extends beyond business success—he's passionate about creating sustainable livelihoods for farming communities and reconnecting urban families with authentic farm experiences.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="founder-card">
+                        <img src="images/team/rehman2.jpeg" alt="Rehman" class="founder-image" style="object-position: center top;">
+                        <h3 class="founder-name">Rehman</h3>
+                        <p class="founder-title">Co-Founder & Chief Marketing Officer</p>
+                        <p class="founder-bio">
+                            <strong>Education:</strong> Graduate, Crescent University, Chennai<br>
+                            <strong>Expertise:</strong> Digital Marketing & Brand Strategy<br><br>
+                            
+                            Rehman brings strategic marketing expertise and brand vision to Farm to Home. His innovative approach to digital marketing and customer engagement has been instrumental in building Farm to Home's brand identity and market presence. With a deep understanding of consumer behavior and market trends, he has successfully positioned Farm to Home as India's premium mango delivery service.
+                            <br><br>
+                            Rehman's marketing initiatives focus on storytelling—sharing the journey of each mango from orchard to doorstep, highlighting the farmers behind the produce, and educating consumers about the difference between tree-ripened and cold-storage mangoes. His campaigns have successfully reached thousands of households seeking authentic farm-fresh produce.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Our Core Values</h2>
+            <div class="row g-4 mt-4">
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="value-card">
+                        <div class="value-icon">🌿</div>
+                        <h3 class="value-title">Sustainability</h3>
+                        <p class="value-description">
+                            100% organic farming practices, zero-waste packaging, and carbon-neutral delivery. We're committed to protecting the environment for future generations.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="value-card">
+                        <div class="value-icon">💯</div>
+                        <h3 class="value-title">Quality</h3>
+                        <p class="value-description">
+                            Every mango is hand-picked at peak ripeness and delivered within 48 hours. We never compromise on quality—it's our promise to you.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="value-card">
+                        <div class="value-icon">🤝</div>
+                        <h3 class="value-title">Farmer First</h3>
+                        <p class="value-description">
+                            We ensure fair prices for farmers, provide training and resources, and create sustainable livelihoods for farming communities.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                    <div class="value-card">
+                        <div class="value-icon">🚀</div>
+                        <h3 class="value-title">Innovation</h3>
+                        <p class="value-description">
+                            Leveraging AI, IoT, and modern technology to revolutionize traditional farming while preserving time-tested agricultural wisdom.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Impact Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title" style="color: white;" data-aos="fade-up">Our Mission & Impact</h2>
+            <div class="row mt-5">
+                <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 2.5rem; border-radius: 15px; backdrop-filter: blur(10px); height: 100%;">
+                        <h3 style="color: #FFD700; font-size: 1.8rem; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;">Our Mission</h3>
+                        <p style="line-height: 1.8; font-size: 1.1rem; opacity: 0.95;">
+                            To revolutionize India's agricultural supply chain by connecting farmers directly with consumers through technology. We're committed to delivering the authentic taste of tree-ripened mangoes while ensuring fair compensation for farmers and sustainable farming practices that protect our environment for future generations.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 2.5rem; border-radius: 15px; backdrop-filter: blur(10px); height: 100%;">
+                        <h3 style="color: #FFD700; font-size: 1.8rem; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;">Our Impact</h3>
+                        <p style="line-height: 1.8; font-size: 1.1rem; opacity: 0.95;">
+                            Since 2020, we've empowered farming families across Chittoor with fair trade practices, modern agricultural technology, and direct market access. Our AI-driven precision farming has increased yields by 30% while reducing water usage by 40%. Every mango you enjoy supports sustainable livelihoods and eco-friendly farming.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-12" data-aos="fade-up" data-aos-delay="300">
+                    <div style="background: rgba(255, 215, 0, 0.2); padding: 2.5rem; border-radius: 15px; border: 2px solid rgba(255, 215, 0, 0.4); text-align: center;">
+                        <h3 style="color: #FFD700; font-size: 1.8rem; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;">Our Commitment</h3>
+                        <p style="line-height: 1.8; font-size: 1.1rem; opacity: 0.95; max-width: 900px; margin: 0 auto;">
+                            Every tree rented, every mango purchased contributes to a larger vision: preserving traditional farming knowledge, empowering rural communities, and bringing authentic farm experiences to urban families. We're not just delivering mangoes—we're building bridges between India's agricultural heritage and its digital future.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Farm to Home®</h4>
+                    <p>India's most trusted mango delivery service</p>
+                    <p class="hindi-text">Cultivating Excellence, Delivering Happiness</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="index.html#rent">Rent Trees</a>
+                    <a href="index.html#shop">Shop Mangoes</a>
+                    <a href="about.html">About Us</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h4>We Accept</h4>
+                    <p>💳 Credit/Debit Cards</p>
+                    <p>📱 UPI | Paytm | PhonePe</p>
+                    <p>💰 Net Banking | COD</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Farm to Home®. All rights reserved. | Made with ❤️ in India</p>
+                <p>🥭 From Our Orchards to Your Table - Freshness Guaranteed</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

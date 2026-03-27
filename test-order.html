@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Order API</title>
+</head>
+<body>
+    <h1>Test Order Placement</h1>
+    <button onclick="testOrder()">Test Place Order</button>
+    <div id="result"></div>
+
+    <script>
+        async function testOrder() {
+            const testData = {
+                customer: {
+                    name: "Test Customer",
+                    email: "test@example.com",
+                    phone: "9876543210",
+                    address: "Test Address",
+                    city: "Test City",
+                    pincode: "123456"
+                },
+                payment: "cod",
+                items: [
+                    {
+                        name: "Test Mango",
+                        price: 1000,
+                        quantity: 1,
+                        image: "test.jpg",
+                        type: "mango"
+                    }
+                ],
+                total: 1000,
+                orderDate: new Date().toISOString()
+            };
+
+            try {
+                console.log('Sending test order...', testData);
+                
+                const response = await fetch('http://localhost:5001/api/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                console.log('Response status:', response.status);
+                const result = await response.json();
+                console.log('Response data:', result);
+
+                document.getElementById('result').innerHTML = `
+                    <h2>Success!</h2>
+                    <p>Order Number: ${result.order_number}</p>
+                    <p>Order ID: ${result.order_id}</p>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>Error!</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

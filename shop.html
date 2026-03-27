@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Fresh Mangoes - Farm to Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+                    <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="premiumGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+                            </linearGradient>
+                            <radialGradient id="mangoGradient" cx="35%" cy="35%">
+                                <stop offset="0%" style="stop-color:#FFF4A3;stop-opacity:1" />
+                                <stop offset="30%" style="stop-color:#FFD54F;stop-opacity:1" />
+                                <stop offset="60%" style="stop-color:#FFB300;stop-opacity:1" />
+                                <stop offset="85%" style="stop-color:#FF8F00;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#E65100;stop-opacity:1" />
+                            </radialGradient>
+                            <filter id="luxuryShadow">
+                                <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                                <feOffset dx="0" dy="2" result="offsetblur"/>
+                                <feComponentTransfer>
+                                    <feFuncA type="linear" slope="0.5"/>
+                                </feComponentTransfer>
+                                <feMerge>
+                                    <feMergeNode/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <circle cx="50" cy="50" r="48" fill="none" stroke="url(#premiumGold)" stroke-width="3" filter="url(#luxuryShadow)"/>
+                        <circle cx="50" cy="50" r="44" fill="none" stroke="url(#premiumGold)" stroke-width="1" opacity="0.5"/>
+                        <path d="M 50 18 L 35 40 L 41 40 L 50 28 L 59 40 L 65 40 Z" fill="url(#premiumGold)" filter="url(#luxuryShadow)"/>
+                        <path d="M 50 42 Q 59 45, 63 54 Q 65 63, 61 70 Q 56 75, 50 76 Q 44 75, 39 70 Q 35 63, 37 54 Q 41 45, 50 42 Z" fill="url(#mangoGradient)" filter="url(#luxuryShadow)"/>
+                        <ellipse cx="46" cy="51" rx="7" ry="9" fill="#FFF9C4" opacity="0.6"/>
+                        <ellipse cx="47" cy="53" rx="3.5" ry="4.5" fill="#FFFFFF" opacity="0.4"/>
+                        <path d="M 52 68 Q 55 70, 58 67 Q 60 63, 58 60" fill="#E65100" opacity="0.2"/>
+                        <path d="M 50 42 Q 43 37, 38 40 Q 35 43, 38 48 Q 43 53, 50 50 Z" fill="#4CAF50" opacity="1"/>
+                        <path d="M 50 42 Q 47 38, 43 40" fill="#66BB6A" opacity="0.6"/>
+                        <path d="M 43 41 Q 43 45, 45 48" stroke="#2E7D32" stroke-width="1.2" fill="none" opacity="0.8"/>
+                        <text x="50" y="86" font-family="'Playfair Display', serif" font-size="18" font-weight="900" fill="url(#premiumGold)" text-anchor="middle" letter-spacing="3">F&amp;H</text>
+                        <path d="M 32 91 Q 50 93, 68 91" stroke="url(#premiumGold)" stroke-width="1.5" fill="none" opacity="0.7"/>
+                    </svg>
+                    <div class="logo-text">
+                        <span class="brand-name">
+                            <span class="word-farm">FARM</span>
+                            <span class="word-to">to</span>
+                            <span class="word-home">HOME</span>
+                        </span>
+                        <span class="trademark">®</span>
+                        <span class="tagline">Nature's Gold, Delivered Fresh</span>
+                    </div>
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="rent-trees.html">Rent Trees</a></li>
+                <li><a href="shop.html" class="active">Shop Mangoes</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="#" class="cart-icon">🛒 <span class="cart-count">0</span></a></li>
+                <li><a href="#" class="login-btn">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 100px 0 60px; text-align: center; color: white;">
+        <div class="container">
+            <h1 data-aos="fade-up" style="font-size: 3.5rem; font-family: 'Playfair Display', serif; margin-bottom: 1rem;">Shop Fresh Mangoes</h1>
+            <p data-aos="fade-up" data-aos-delay="200" style="font-size: 1.3rem; opacity: 0.95;">Premium quality mangoes delivered to your doorstep</p>
+        </div>
+    </section>
+
+    <!-- Shop Mangoes Section -->
+    <section id="shop" class="shop-section">
+        <div class="container">
+            <div class="products-grid">
+                <div class="product-card premium">
+                    <div class="product-badge">Premium</div>
+                    <div class="product-image">
+                        <img src="images/mangoes/alphanso.jpeg" 
+                             alt="Alphonso Mangoes" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+                    </div>
+                    <h3>Alphonso Mangoes</h3>
+                    <p class="variety">🏆 Ratnagiri Hapus - King of Mangoes</p>
+                    <p class="description">Authentic GI-tagged Alphonso from Ratnagiri. Rich, creamy texture with divine sweetness</p>
+                    <div class="product-rating">⭐⭐⭐⭐⭐ (4.9/5)</div>
+                    <p class="price">₹1,999 <span class="unit">/ dozen</span></p>
+                    <button class="btn btn-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/mangoes/keser.jpeg" 
+                             alt="Kesar Mangoes" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+                    </div>
+                    <h3>Kesar Mangoes</h3>
+                    <p class="variety">🌟 Gujarat's Pride - Kesar</p>
+                    <p class="description">Aromatic saffron-colored pulp from Junagadh. Perfect balance of sweet and tangy</p>
+                    <div class="product-rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
+                    <p class="price">₹1,599 <span class="unit">/ dozen</span></p>
+                    <button class="btn btn-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/mangoes/dasheri.webp" 
+                             alt="Dasheri Mangoes" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+                    </div>
+                    <h3>Dasheri Mangoes</h3>
+                    <p class="variety">💚 Lucknow Special - Dasheri</p>
+                    <p class="description">Fragrant North Indian variety. Sweet, juicy with minimal fiber</p>
+                    <div class="product-rating">⭐⭐⭐⭐☆ (4.6/5)</div>
+                    <p class="price">₹1,299 <span class="unit">/ dozen</span></p>
+                    <button class="btn btn-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/mangoes/bangenapalli.jpeg" 
+                             alt="Banganapalli Mangoes" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+                    </div>
+                    <h3>Banganapalli</h3>
+                    <p class="variety">🌾 Andhra's Treasure - Benishan</p>
+                    <p class="description">Large, fiberless mangoes from Andhra Pradesh. Mild sweetness, perfect for desserts</p>
+                    <div class="product-rating">⭐⭐⭐⭐☆ (4.5/5)</div>
+                    <p class="price">₹1,199 <span class="unit">/ dozen</span></p>
+                    <button class="btn btn-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/mangoes/langara.webp" 
+                             alt="Langra Mangoes" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+                    </div>
+                    <h3>Langra Mangoes</h3>
+                    <p class="variety">💎 Varanasi's Green Gold</p>
+                    <p class="description">Unique green-skinned variety. Sweet even when green, aromatic pulp</p>
+                    <div class="product-rating">⭐⭐⭐⭐☆ (4.7/5)</div>
+                    <p class="price">₹1,399 <span class="unit">/ dozen</span></p>
+                    <button class="btn btn-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card special">
+                    <div class="product-badge">Best Value</div>
+                    <div class="product-image">
+                        <img src="images/mangoes/mixed.jpeg" 
+                             alt="Premium Mixed Mangoes Box" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+                    </div>
+                    <h3>Premium Mixed Box</h3>
+                    <p class="variety">🎁 Taste of India Collection</p>
+                    <p class="description">Curated selection: Alphonso, Kesar, Dasheri & Langra. Experience India's finest</p>
+                    <div class="product-rating">⭐⭐⭐⭐⭐ (5.0/5)</div>
+                    <p class="price">₹1,799 <span class="unit">/ dozen</span></p>
+                    <button class="btn btn-cart">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Farm to Home®</h4>
+                    <p>India's most trusted mango delivery service</p>
+                    <p class="hindi-text">Cultivating Excellence, Delivering Happiness</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="rent-trees.html">Rent Trees</a>
+                    <a href="shop.html">Shop Mangoes</a>
+                    <a href="about.html">About Us</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h4>We Accept</h4>
+                    <p>💳 Credit/Debit Cards</p>
+                    <p>📱 UPI | Paytm | PhonePe</p>
+                    <p>💰 Net Banking | COD</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Farm to Home®. All rights reserved. | Made with ❤️ in India</p>
+                <p>🥭 From Our Orchards to Your Table - Freshness Guaranteed</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
