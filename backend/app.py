@@ -420,6 +420,19 @@ def submit_contact():
         if result['success']:
             print(f"✅ Contact saved to database with ID: {result['contact_id']}")
             
+            # Send email notification in background
+            try:
+                import threading
+                email_thread = threading.Thread(
+                    target=send_contact_email_safe,
+                    args=(data,)
+                )
+                email_thread.daemon = True
+                email_thread.start()
+                print(f"📧 Contact email notification queued for sending...")
+            except Exception as email_error:
+                print(f"⚠️  Email error: {str(email_error)}")
+            
             return jsonify({
                 'success': True,
                 'contact_id': result['contact_id'],
@@ -438,6 +451,153 @@ def submit_contact():
             'success': False,
             'message': str(e)
         }), 500
+
+def send_contact_email_safe(contact_data):
+    """Wrapper to safely send contact email without blocking"""
+    try:
+        send_contact_email(contact_data)
+        print(f"✅ Contact email notification sent successfully!")
+    except Exception as e:
+        print(f"⚠️  Contact email sending failed: {str(e)}")
+
+def send_contact_email(contact_data):
+    """Send contact form notification via email"""
+    name = contact_data.get('name')
+    email = contact_data.get('email')
+    phone = contact_data.get('phone', 'Not provided')
+    message = contact_data.get('message')
+    
+    # Create email subject
+    subject = f"📧 New Contact Form Submission from {name}"
+    
+    # Create HTML email body
+    html_body = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+            }}
+            .container {{
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f9f9f9;
+            }}
+            .header {{
+                background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 10px 10px 0 0;
+            }}
+            .header h1 {{
+                margin: 0;
+                font-size: 28px;
+            }}
+            .content {{
+                background: white;
+                padding: 30px;
+                border-radius: 0 0 10px 10px;
+            }}
+            .section {{
+                margin-bottom: 25px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #f0f0f0;
+            }}
+            .section:last-child {{
+                border-bottom: none;
+            }}
+            .section-title {{
+                color: #4CAF50;
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }}
+            .info-row {{
+                margin: 8px 0;
+            }}
+            .label {{
+                font-weight: bold;
+                color: #666;
+            }}
+            .message-box {{
+                background-color: #f8f8f8;
+                padding: 20px;
+                border-left: 4px solid #4CAF50;
+                border-radius: 5px;
+                margin-top: 15px;
+            }}
+            .footer {{
+                text-align: center;
+                margin-top: 20px;
+                padding: 20px;
+                color: #666;
+                font-size: 14px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📧 New Contact Form Submission</h1>
+                <p style="margin: 10px 0 0 0;">Farm to Home</p>
+            </div>
+            
+            <div class="content">
+                <!-- Contact Information -->
+                <div class="section">
+                    <div class="section-title">👤 Contact Information</div>
+                    <div class="info-row"><span class="label">Name:</span> {name}</div>
+                    <div class="info-row"><span class="label">Email:</span> <a href="mailto:{email}">{email}</a></div>
+                    <div class="info-row"><span class="label">Phone:</span> {phone}</div>
+                </div>
+                
+                <!-- Message -->
+                <div class="section">
+                    <div class="section-title">💬 Message</div>
+                    <div class="message-box">
+                        {message}
+                    </div>
+                </div>
+                
+                <!-- Action Required -->
+                <div class="section">
+                    <div class="section-title">⚡ Action Required</div>
+                    <p>Please respond to this inquiry within 24 hours.</p>
+                    <p><strong>Reply to:</strong> <a href="mailto:{email}">{email}</a></p>
+                    <p><strong>Call:</strong> {phone}</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>🥭 Farm to Home - Contact Form Notification</p>
+                <p>This is an automated notification from your website</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    # Create email message
+    email_message = MIMEMultipart('alternative')
+    email_message['Subject'] = subject
+    email_message['From'] = f"Farm to Home Contact <{SENDER_EMAIL}>"
+    email_message['To'] = RECEIVER_EMAIL
+    email_message['Reply-To'] = f"{name} <{email}>"  # Customer's email for easy reply
+    
+    # Attach HTML body
+    html_part = MIMEText(html_body, 'html')
+    email_message.attach(html_part)
+    
+    # Send email
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(email_message)
 
 @app.route('/api/contacts', methods=['GET'])
 def get_contacts():
