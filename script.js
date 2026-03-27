@@ -239,12 +239,11 @@ function showCheckoutModal() {
                 <div class="form-group">
                     <label>Payment Method *</label>
                     <select name="payment" required>
-                        <option value="">Select payment method</option>
-                        <option value="cod">Cash on Delivery</option>
-                        <option value="upi">UPI</option>
-                        <option value="card">Credit/Debit Card</option>
-                        <option value="netbanking">Net Banking</option>
+                        <option value="upi" selected>UPI Payment (Google Pay, PhonePe, Paytm, etc.)</option>
                     </select>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                        💳 Secure UPI payment powered by Razorpay
+                    </p>
                 </div>
                 <div class="order-summary">
                     <h3>Order Summary</h3>
