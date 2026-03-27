@@ -135,17 +135,25 @@ RAZORPAY_KEY_ID=rzp_test_your_key_id
 RAZORPAY_KEY_SECRET=your_secret_key
 ```
 
-### Email Setup
+### Email Setup (Mailgun)
+
+**Now using Mailgun API for reliable email delivery!**
 
 Add to `backend/.env`:
 
 ```env
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
-SENDER_EMAIL=your-email@gmail.com
-SENDER_PASSWORD=your-app-password
-RECEIVER_EMAIL=receiver@gmail.com
+MAILGUN_API_KEY=your_mailgun_api_key
+MAILGUN_DOMAIN=your_sandbox_domain.mailgun.org
+RECEIVER_EMAIL=your@email.com
 ```
+
+**Features:**
+- ✅ Fast delivery (1-2 seconds)
+- ✅ 5,000 emails/month free
+- ✅ No authentication issues
+- ✅ Professional service
+
+**Sign up:** https://signup.mailgun.com
 
 ## 🧪 Testing
 

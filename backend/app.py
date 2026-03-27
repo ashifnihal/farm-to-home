@@ -3,9 +3,7 @@ from flask_cors import CORS
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 from database import Database
 import razorpay
 import hmac
@@ -20,11 +18,9 @@ CORS(app)  # Enable CORS for frontend requests
 # Initialize Database
 db = Database()
 
-# Email Configuration
-SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
-SENDER_EMAIL = os.getenv('SENDER_EMAIL')
-SENDER_PASSWORD = os.getenv('SENDER_PASSWORD')
+# Mailgun Configuration
+MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY')
+MAILGUN_DOMAIN = os.getenv('MAILGUN_DOMAIN')
 RECEIVER_EMAIL = os.getenv('RECEIVER_EMAIL')
 
 # Razorpay Configuration
@@ -211,7 +207,7 @@ def send_order_email_safe(order_data, order_number):
 
 def send_order_email(order_data, order_number):
     """
-    Send order notification via email
+    Send order notification via Mailgun API
     """
     customer = order_data['customer']
     items = order_data['items']
@@ -383,22 +379,24 @@ def send_order_email(order_data, order_number):
     </html>
     """
     
-    # Create email message
-    message = MIMEMultipart('alternative')
-    message['Subject'] = subject
-    message['From'] = f"Farm to Home <{SENDER_EMAIL}>"
-    message['To'] = RECEIVER_EMAIL
-    message['Reply-To'] = f"{customer['name']} <{customer['email']}>"  # Customer's email for easy reply
+    # Send via Mailgun API
+    response = requests.post(
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", MAILGUN_API_KEY),
+        data={
+            "from": f"Farm to Home <mailgun@{MAILGUN_DOMAIN}>",
+            "to": [RECEIVER_EMAIL],
+            "subject": subject,
+            "html": html_body,
+            "h:Reply-To": f"{customer['name']} <{customer['email']}>"
+        }
+    )
     
-    # Attach HTML body
-    html_part = MIMEText(html_body, 'html')
-    message.attach(html_part)
-    
-    # Send email
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.send_message(message)
+    if response.status_code == 200:
+        print(f"✅ Order email sent via Mailgun")
+    else:
+        print(f"❌ Mailgun error: {response.text}")
+        raise Exception(f"Mailgun API error: {response.status_code}")
 
 @app.route('/api/contact', methods=['POST'])
 def submit_contact():
@@ -461,7 +459,7 @@ def send_contact_email_safe(contact_data):
         print(f"⚠️  Contact email sending failed: {str(e)}")
 
 def send_contact_email(contact_data):
-    """Send contact form notification via email"""
+    """Send contact form notification via Mailgun API"""
     name = contact_data.get('name')
     email = contact_data.get('email')
     phone = contact_data.get('phone', 'Not provided')
@@ -582,22 +580,24 @@ def send_contact_email(contact_data):
     </html>
     """
     
-    # Create email message
-    email_message = MIMEMultipart('alternative')
-    email_message['Subject'] = subject
-    email_message['From'] = f"Farm to Home Contact <{SENDER_EMAIL}>"
-    email_message['To'] = RECEIVER_EMAIL
-    email_message['Reply-To'] = f"{name} <{email}>"  # Customer's email for easy reply
+    # Send via Mailgun API
+    response = requests.post(
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", MAILGUN_API_KEY),
+        data={
+            "from": f"Farm to Home Contact <mailgun@{MAILGUN_DOMAIN}>",
+            "to": [RECEIVER_EMAIL],
+            "subject": subject,
+            "html": html_body,
+            "h:Reply-To": f"{name} <{email}>"
+        }
+    )
     
-    # Attach HTML body
-    html_part = MIMEText(html_body, 'html')
-    email_message.attach(html_part)
-    
-    # Send email
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.send_message(email_message)
+    if response.status_code == 200:
+        print(f"✅ Contact email sent via Mailgun")
+    else:
+        print(f"❌ Mailgun error: {response.text}")
+        raise Exception(f"Mailgun API error: {response.status_code}")
 
 @app.route('/api/contacts', methods=['GET'])
 def get_contacts():
@@ -703,40 +703,46 @@ def verify_payment():
 @app.route('/api/send-test-email', methods=['POST'])
 def send_test_email():
     """
-    Test endpoint to verify email integration
+    Test endpoint to verify Mailgun email integration
     """
     try:
         # Create test email
-        subject = "🥭 Test Email from Farm to Home"
-        body = """
+        subject = "🥭 Test Email from Farm to Home (Mailgun)"
+        html_body = """
         <html>
             <body style="font-family: Arial, sans-serif; padding: 20px;">
-                <h2 style="color: #FFD700;">✅ Email Integration Working!</h2>
-                <p>This is a test email from your Farm to Home backend.</p>
+                <h2 style="color: #FFD700;">✅ Mailgun Integration Working!</h2>
+                <p>This is a test email from your Farm to Home backend using Mailgun API.</p>
                 <p>Your email notification system is set up correctly and ready to receive orders!</p>
                 <hr>
                 <p style="color: #666; font-size: 14px;">Farm to Home - Mango Delivery Service</p>
+                <p style="color: #999; font-size: 12px;">Powered by Mailgun</p>
             </body>
         </html>
         """
         
-        message = MIMEMultipart('alternative')
-        message['Subject'] = subject
-        message['From'] = SENDER_EMAIL
-        message['To'] = RECEIVER_EMAIL
+        # Send via Mailgun API
+        response = requests.post(
+            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+            auth=("api", MAILGUN_API_KEY),
+            data={
+                "from": f"Farm to Home <mailgun@{MAILGUN_DOMAIN}>",
+                "to": [RECEIVER_EMAIL],
+                "subject": subject,
+                "html": html_body
+            }
+        )
         
-        html_part = MIMEText(body, 'html')
-        message.attach(html_part)
-        
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.send_message(message)
-        
-        return jsonify({
-            'success': True,
-            'message': 'Test email sent successfully! Check your inbox.'
-        }), 200
+        if response.status_code == 200:
+            return jsonify({
+                'success': True,
+                'message': 'Test email sent successfully via Mailgun! Check your inbox.'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'message': f'Mailgun API error: {response.status_code} - {response.text}'
+            }), 500
         
     except Exception as e:
         return jsonify({
@@ -745,15 +751,16 @@ def send_test_email():
         }), 500
 
 if __name__ == '__main__':
-    # Check if email credentials are set
-    if not SENDER_EMAIL or not SENDER_PASSWORD:
-        print("⚠️  WARNING: Email credentials not set!")
-        print("Please set SENDER_EMAIL and SENDER_PASSWORD in .env file")
+    # Check if Mailgun credentials are set
+    if not MAILGUN_API_KEY or not MAILGUN_DOMAIN:
+        print("⚠️  WARNING: Mailgun credentials not set!")
+        print("Please set MAILGUN_API_KEY and MAILGUN_DOMAIN in .env file")
     else:
-        print("✅ Email credentials loaded")
+        print("✅ Mailgun credentials loaded")
     
     print(f"🚀 Starting Farm to Home API server...")
     print(f"📧 Email notifications will be sent to: {RECEIVER_EMAIL}")
+    print(f"📧 Using Mailgun domain: {MAILGUN_DOMAIN}")
     
     # Run the Flask app
     app.run(debug=True, host='0.0.0.0', port=5001)
