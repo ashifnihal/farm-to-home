@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 from datetime import datetime
+import pytz
 from dotenv import load_dotenv
 import requests
 from database import Database
@@ -13,6 +14,13 @@ from security import PaymentSecurity, require_rate_limit, require_https
 
 # Load environment variables
 load_dotenv()
+
+# Set IST timezone
+IST = pytz.timezone('Asia/Kolkata')
+
+def get_ist_time():
+    """Get current time in IST"""
+    return datetime.now(IST)
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend requests

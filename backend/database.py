@@ -1,6 +1,14 @@
 import sqlite3
 from datetime import datetime
+import pytz
 import json
+
+# Set IST timezone
+IST = pytz.timezone('Asia/Kolkata')
+
+def get_ist_now():
+    """Get current time in IST"""
+    return datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')
 
 class Database:
     def __init__(self, db_name='farm_to_home.db'):
@@ -150,8 +158,9 @@ class Database:
             # Add customer first
             customer_id = self.add_customer(order_data['customer'])
             
-            # Generate order number
-            order_number = f"FTH{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            # Generate order number using IST
+            ist_now = datetime.now(IST)
+            order_number = f"FTH{ist_now.strftime('%Y%m%d%H%M%S')}"
             
             # Extract payment details
             upi_id = order_data.get('upi_id')
@@ -306,7 +315,7 @@ class Database:
                 contact_data.get('phone', ''),
                 contact_data['message'],
                 'new',
-                datetime.now().isoformat()
+                get_ist_now()
             ))
             
             contact_id = cursor.lastrowid
