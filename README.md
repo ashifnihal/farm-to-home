@@ -42,10 +42,13 @@ A complete e-commerce platform for renting mango trees and selling premium mango
 - ✅ Payment tracking
 
 ### **Products**
-- 🥭 6 Premium mango varieties
-- 🌳 3 Tree rental plans
+- 🥭 **6 Premium mango varieties** (Alphonso, Kesar, Banganapalli, Dasheri, Langra, Sindhura)
+- 📏 **Sold by weight** - Kilograms (kg) instead of dozens
+- 🌳 **3 Tree rental plans** (Starter, Premium, Royal)
+- 🎖️ **Digital ownership certificates** for tree rentals
 - 📦 Custom gift boxes
-- 🚚 Bangalore Urban delivery only
+- 🚚 Bangalore Urban delivery only (101 pincodes)
+- 💰 **Fixed delivery charges: ₹500** ✨
 
 ### **Delivery Coverage**
 - 📍 **Bangalore Urban Only** (101 Pincodes)
@@ -103,6 +106,7 @@ http://localhost:8000
 ## 📚 Documentation
 
 - **[Latest Updates](LATEST-UPDATES.md)** - Recent features & improvements ✨
+- **[Delivery Charges](DELIVERY-CHARGES-UPDATE.md)** - Delivery charges implementation ✨
 - **[Quick Start Guide](QUICK-START-GUIDE.md)** - Get started in 2 minutes
 - **[UPI Payment Setup](UPI-PAYMENT-SETUP.md)** - Payment gateway configuration
 - **[Payment Integration](PAYMENT-INTEGRATION-GUIDE.md)** - Technical details

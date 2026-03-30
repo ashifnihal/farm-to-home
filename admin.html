@@ -576,6 +576,18 @@
                                             <td>₹${item.subtotal.toLocaleString('en-IN')}</td>
                                         </tr>
                                     `).join('')}
+                                    <tr style="border-top: 2px solid #dee2e6;">
+                                        <td colspan="3" style="text-align: right; font-weight: bold;">Items Subtotal:</td>
+                                        <td style="font-weight: bold;">₹${order.items.reduce((sum, item) => sum + item.subtotal, 0).toLocaleString('en-IN')}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="text-align: right;">Delivery Charges:</td>
+                                        <td>₹500</td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa; font-weight: bold; font-size: 16px;">
+                                        <td colspan="3" style="text-align: right;">Total Amount:</td>
+                                        <td style="color: #667eea;">₹${order.total_amount.toLocaleString('en-IN')}</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -583,7 +595,7 @@
                         <div class="order-detail">
                             <h3>Payment Information</h3>
                             <p><strong>Payment Method:</strong> ${order.payment_method.toUpperCase()}</p>
-                            <p><strong>Total Amount:</strong> <strong style="font-size: 24px; color: #667eea;">₹${order.total_amount.toLocaleString('en-IN')}</strong></p>
+                            <p><strong>Payment Status:</strong> <span class="status-badge" style="background: #d4edda; color: #155724;">PAID</span></p>
                             ${order.upi_id ? `<p><strong>UPI ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">${order.upi_id}</code></p>` : ''}
                             ${order.razorpay_order_id ? `<p><strong>Razorpay Order ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${order.razorpay_order_id}</code></p>` : ''}
                             ${order.razorpay_payment_id ? `<p><strong>Razorpay Payment ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${order.razorpay_payment_id}</code></p>` : ''}

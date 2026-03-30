@@ -129,13 +129,25 @@ function showCartModal() {
             `;
         });
         
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const deliveryCharge = 500;
+        const total = subtotal + deliveryCharge;
         cartHTML += `
             </div>
             <div class="cart-footer">
-                <div class="cart-total">
-                    <span>Total:</span>
-                    <span class="total-amount">₹${total.toLocaleString('en-IN')}</span>
+                <div class="cart-summary">
+                    <div class="cart-subtotal">
+                        <span>Subtotal:</span>
+                        <span>₹${subtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div class="cart-delivery">
+                        <span>Delivery Charges:</span>
+                        <span>₹${deliveryCharge.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span class="total-amount">₹${total.toLocaleString('en-IN')}</span>
+                    </div>
                 </div>
                 <button class="btn btn-primary" onclick="proceedToCheckout()">Place Order</button>
             </div>
@@ -203,7 +215,9 @@ function showCheckoutModal() {
     const modal = document.createElement('div');
     modal.className = 'cart-modal';
     
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryCharge = 500;
+    const total = subtotal + deliveryCharge;
     
     modal.innerHTML = `
         <div class="cart-modal-content checkout-modal">
@@ -381,6 +395,14 @@ function showCheckoutModal() {
                                 <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
                             </div>
                         `).join('')}
+                    </div>
+                    <div class="summary-subtotal">
+                        <span>Subtotal:</span>
+                        <span>₹${subtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div class="summary-delivery">
+                        <span>Delivery Charges:</span>
+                        <span>₹${deliveryCharge.toLocaleString('en-IN')}</span>
                     </div>
                     <div class="summary-total">
                         <span>Total Amount:</span>
@@ -568,6 +590,11 @@ async function placeOrder(event) {
         // Build complete address string
         const fullAddress = `${house}, ${street}${landmark ? ', ' + landmark : ''}, ${city}, ${state} - ${pincode}, ${country}`;
         
+        // Calculate subtotal and add delivery charges
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const deliveryCharge = 500;
+        const totalWithDelivery = subtotal + deliveryCharge;
+        
         const orderData = {
             customer: {
                 name: name,
@@ -584,7 +611,9 @@ async function placeOrder(event) {
             },
             payment: 'upi',  // Always UPI
             items: cart,
-            total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+            subtotal: subtotal,
+            deliveryCharge: deliveryCharge,
+            total: totalWithDelivery,
             orderDate: new Date().toISOString()
         };
         
@@ -1111,9 +1140,17 @@ function downloadInvoice(orderId, orderData) {
                         <td style="text-align: right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
                     </tr>
                 `).join('')}
+                <tr style="border-top: 2px solid #ddd;">
+                    <td colspan="4" style="text-align: right; padding-top: 15px;"><strong>Subtotal:</strong></td>
+                    <td style="text-align: right; padding-top: 15px;"><strong>₹${(orderData.subtotal || orderData.total - 500).toLocaleString('en-IN')}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right;">Delivery Charges:</td>
+                    <td style="text-align: right;">₹${(orderData.deliveryCharge || 500).toLocaleString('en-IN')}</td>
+                </tr>
                 <tr class="total-row">
-                    <td colspan="4" style="text-align: right;">TOTAL AMOUNT:</td>
-                    <td style="text-align: right;">₹${orderData.total.toLocaleString('en-IN')}</td>
+                    <td colspan="4" style="text-align: right; font-size: 18px;">TOTAL AMOUNT:</td>
+                    <td style="text-align: right; font-size: 18px;">₹${orderData.total.toLocaleString('en-IN')}</td>
                 </tr>
             </tbody>
         </table>

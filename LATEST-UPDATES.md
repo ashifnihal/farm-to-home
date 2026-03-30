@@ -6,6 +6,240 @@ This document summarizes all the latest updates and improvements made to the Far
 
 ---
 
+## 💰 0. Delivery Charges Implementation (March 30, 2026)
+
+### Overview
+Implemented transparent delivery charges system with complete breakdown across all order touchpoints.
+
+### Delivery Charge Details
+- **Amount:** ₹500 (Fixed for all orders)
+- **Applies to:** All orders (mangoes and tree rentals)
+- **Coverage:** Bangalore Urban only
+
+### Implementation Areas
+
+#### Cart Modal & Checkout
+- Items Subtotal displayed
+- Delivery Charges: ₹500 (separate line)
+- Total Amount = Subtotal + Delivery Charges
+
+#### Order Data Structure
+```javascript
+{
+  subtotal: 3000,
+  deliveryCharge: 500,
+  total: 3500
+}
+```
+
+#### Invoice Generation
+- Professional invoice with itemized billing
+- Separate line for delivery charges
+- Total includes delivery charges
+
+#### Admin Dashboard
+- Order details show complete breakdown
+- Items subtotal + Delivery charges + Total
+
+### Backend Updates
+- ✅ Updated validation to include delivery charges
+- ✅ Order data structure enhanced
+- ✅ Security validation updated
+
+### Documentation
+See [DELIVERY-CHARGES-UPDATE.md](DELIVERY-CHARGES-UPDATE.md) for complete technical details.
+
+---
+
+## 🥭 -1. Product Updates - Mango Varieties & Units (March 2026)
+
+### Overview
+Updated mango product listings with accurate varieties and changed measurement units from dozens to kilograms for better customer understanding.
+
+### Changes Made
+
+#### 1. Mango Varieties Updated
+Changed from generic names to authentic Indian mango varieties:
+
+**Before:**
+- Alphonso Mango
+- Kesar Mango
+- Dasheri Mango
+- Langra Mango
+- Chausa Mango
+- Totapuri Mango
+
+**After:**
+- ✅ Alphonso (Hapus) - King of Mangoes
+- ✅ Kesar - The Saffron Mango
+- ✅ Banganapalli - Andhra's Pride
+- ✅ Dasheri - North Indian Delight
+- ✅ Langra - The Green Wonder
+- ✅ Sindhura - Karnataka Special
+
+#### 2. Unit of Measurement Changed
+**Before:** Dozens (12 mangoes per unit)
+**After:** Kilograms (kg)
+
+**Reasoning:**
+- ✅ More familiar to Indian customers
+- ✅ Standard market practice
+- ✅ Easier to understand quantity
+- ✅ Better for pricing transparency
+
+#### 3. Pricing Structure
+Prices adjusted to reflect per-kilogram rates:
+- Premium varieties: ₹1,200 - ₹1,500 per kg
+- Standard varieties: ₹800 - ₹1,000 per kg
+
+### Benefits
+- ✅ Authentic Indian mango variety names
+- ✅ Clear measurement units (kg)
+- ✅ Better customer understanding
+- ✅ Market-standard pricing
+- ✅ Professional presentation
+
+---
+
+## 🎖️ -2. Tree Ownership Certificate System (March 2026)
+
+### Overview
+Implemented a professional digital certificate system for customers who rent mango trees, providing proof of ownership and tree details.
+
+### Certificate Features
+
+#### 1. Professional Design
+- ✅ Premium gold-themed certificate
+- ✅ Decorative borders and corners
+- ✅ Custom Farm to Home logo with mango design
+- ✅ Elegant typography (Playfair Display + Poppins)
+- ✅ Print-optimized layout
+
+#### 2. Certificate Information
+```
+Certificate includes:
+- Owner's name
+- Unique Tree ID (e.g., FTH-TREE-0001)
+- Plan type (Starter/Premium/Royal)
+- Expected yield (15-25 kg / 40-60 kg / 80-120 kg)
+- Rental period (1 Year)
+- Order number
+- Issue date
+- Certificate number
+- Founder signatures (3 founders)
+```
+
+#### 3. Dynamic Generation
+- Certificate auto-generated after tree rental purchase
+- Data passed via URL parameters
+- Real-time population of certificate fields
+- Unique IDs generated for each certificate
+
+#### 4. Download & Print Options
+- **Download:** Save as high-quality PNG image (using html2canvas)
+- **Print:** Print-optimized CSS for physical certificates
+- **Dashboard Link:** Easy navigation back to user dashboard
+
+### User Flow
+
+```
+1. Customer rents a tree (Starter/Premium/Royal plan)
+2. Completes payment via UPI
+3. Order confirmed
+4. Automatically redirected to certificate page
+5. Certificate displays with:
+   - Customer name
+   - Unique tree ID
+   - Plan details
+   - Expected yield
+6. Customer can:
+   - Download certificate as image
+   - Print certificate
+   - Return to dashboard
+```
+
+### Technical Implementation
+
+#### URL Parameters
+```javascript
+certificate.html?
+  name=John+Doe&
+  treeId=FTH-TREE-0001&
+  plan=Premium+Plan&
+  yield=40-60+kg&
+  orderNumber=FTH20260330180000
+```
+
+#### Certificate Generation
+```javascript
+// Auto-populate certificate on page load
+function populateCertificate() {
+    const data = getCertificateData();
+    document.getElementById('ownerName').textContent = data.ownerName;
+    document.getElementById('treeId').textContent = data.treeId;
+    // ... populate all fields
+}
+```
+
+#### Download Feature
+```javascript
+// Convert certificate to image using html2canvas
+function downloadCertificate() {
+    html2canvas(certificate, {
+        scale: 2,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        // Download as PNG
+        link.download = 'Farm-to-Home-Certificate.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+```
+
+### Certificate Details
+
+#### Tree Plans & Expected Yields
+```
+Starter Plan:
+- Expected Yield: 15-25 kg
+- Price: ₹5,000/year
+
+Premium Plan:
+- Expected Yield: 40-60 kg
+- Price: ₹10,000/year
+
+Royal Plan:
+- Expected Yield: 80-120 kg
+- Price: ₹20,000/year
+```
+
+#### Certificate Elements
+- **Header:** Farm to Home logo + brand name
+- **Title:** "Certificate of Ownership"
+- **Subtitle:** "Mango Tree Rental Program"
+- **Body:** Personalized message with owner name
+- **Tree Details:** Complete information in styled box
+- **Signatures:** Three founder signatures
+- **Certificate Number:** Unique identifier
+
+### Benefits
+- ✅ Professional proof of tree ownership
+- ✅ Memorable customer experience
+- ✅ Shareable on social media
+- ✅ Printable for physical display
+- ✅ Unique tree identification
+- ✅ Builds trust and credibility
+- ✅ Premium brand positioning
+
+### Responsive Design
+- ✅ Mobile-friendly layout
+- ✅ Tablet-optimized
+- ✅ Desktop-enhanced
+- ✅ Print-optimized (@media print)
+
+---
+
 ## 📍 1. Structured Address Collection System
 
 ### Overview
