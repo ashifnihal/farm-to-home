@@ -915,7 +915,7 @@ def register_user():
         data = request.json
         
         # Validate required fields
-        required_fields = ['name', 'email', 'phone', 'password']
+        required_fields = ['name', 'email', 'phone', 'address', 'city', 'pincode', 'password']
         if not all(field in data for field in required_fields):
             return jsonify({
                 'success': False,
@@ -938,6 +938,13 @@ def register_user():
                 'message': msg
             }), 400
         
+        # Validate pincode
+        if not data['pincode'].isdigit() or len(data['pincode']) != 6:
+            return jsonify({
+                'success': False,
+                'message': 'Pincode must be 6 digits'
+            }), 400
+        
         # Validate password length
         if len(data['password']) < 6:
             return jsonify({
@@ -949,7 +956,15 @@ def register_user():
         password_hash = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         # Create user
-        result = db.create_user(data['name'], data['email'], data['phone'], password_hash)
+        result = db.create_user(
+            data['name'], 
+            data['email'], 
+            data['phone'], 
+            data['address'],
+            data['city'],
+            data['pincode'],
+            password_hash
+        )
         
         if result['success']:
             security.log_security_event('USER_REGISTERED', f'Email: {data["email"]}')

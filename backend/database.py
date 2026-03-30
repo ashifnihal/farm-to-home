@@ -25,6 +25,9 @@ class Database:
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 phone TEXT NOT NULL,
+                address TEXT NOT NULL,
+                city TEXT NOT NULL,
+                pincode TEXT NOT NULL,
                 password_hash TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP
@@ -390,16 +393,16 @@ class Database:
             'orders_by_status': orders_by_status
         }
     
-    def create_user(self, name, email, phone, password_hash):
+    def create_user(self, name, email, phone, address, city, pincode, password_hash):
         """Create a new user account"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         try:
             cursor.execute('''
-                INSERT INTO users (name, email, phone, password_hash)
-                VALUES (?, ?, ?, ?)
-            ''', (name, email, phone, password_hash))
+                INSERT INTO users (name, email, phone, address, city, pincode, password_hash)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (name, email, phone, address, city, pincode, password_hash))
             
             user_id = cursor.lastrowid
             conn.commit()
