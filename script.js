@@ -450,9 +450,56 @@ async function placeOrder(event) {
     
     // Get form data first for validation
     const formData = new FormData(event.target);
-    const pincode = formData.get('pincode');
+    const name = formData.get('name')?.trim();
+    const email = formData.get('email')?.trim();
+    const phone = formData.get('phone')?.trim();
+    const address = formData.get('address')?.trim();
+    const city = formData.get('city')?.trim();
+    const pincode = formData.get('pincode')?.trim();
     
-    // Validate Bangalore Urban pincode before processing
+    // Comprehensive validation before processing
+    
+    // 1. Validate Name (minimum 3 characters, only letters and spaces)
+    if (!name || name.length < 3) {
+        showNotification('Please enter a valid name (minimum 3 characters)', 'error');
+        event.target.querySelector('input[name="name"]').focus();
+        return;
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+        showNotification('Name should contain only letters and spaces', 'error');
+        event.target.querySelector('input[name="name"]').focus();
+        return;
+    }
+    
+    // 2. Validate Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        showNotification('Please enter a valid email address', 'error');
+        event.target.querySelector('input[name="email"]').focus();
+        return;
+    }
+    
+    // 3. Validate Phone (exactly 10 digits)
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+        showNotification('Please enter a valid 10-digit phone number', 'error');
+        event.target.querySelector('input[name="phone"]').focus();
+        return;
+    }
+    
+    // 4. Validate Address (minimum 10 characters)
+    if (!address || address.length < 10) {
+        showNotification('Please enter a complete delivery address (minimum 10 characters)', 'error');
+        event.target.querySelector('textarea[name="address"]').focus();
+        return;
+    }
+    
+    // 5. Validate City (must be Bangalore)
+    if (!city || city.toLowerCase() !== 'bangalore') {
+        showNotification('We currently deliver only to Bangalore', 'error');
+        return;
+    }
+    
+    // 6. Validate Bangalore Urban pincode
     const validPincodes = [
         '560001', '560002', '560003', '560004', '560005', '560006', '560007', '560008', '560009', '560010',
         '560011', '560012', '560013', '560014', '560015', '560016', '560017', '560018', '560019', '560020',
@@ -467,14 +514,14 @@ async function placeOrder(event) {
         '560103'
     ];
     
-    if (!validPincodes.includes(pincode)) {
+    if (!pincode || !validPincodes.includes(pincode)) {
         showNotification('Invalid pincode! We only deliver to Bangalore Urban (560001-560103)', 'error');
         const pincodeInput = document.getElementById('checkoutPincode');
         if (pincodeInput) {
             pincodeInput.style.borderColor = '#f44336';
             pincodeInput.focus();
         }
-        return; // Stop form submission
+        return;
     }
     
     // Disable button and show loading state
