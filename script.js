@@ -234,8 +234,62 @@ function showCheckoutModal() {
                     <small style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">Currently delivering to Bangalore only</small>
                 </div>
                 <div class="form-group">
-                    <label>Pincode & Area *</label>
-                    <select name="pincode" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    <label>Pincode *</label>
+                    <input type="text" name="pincode" id="checkoutPincode" required placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    <small id="checkoutPincodeHelp" style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">Bangalore Urban pincodes only (560001-560103)</small>
+                    <small id="checkoutPincodeError" style="color: #f44336; font-size: 12px; display: none; margin-top: 5px;"></small>
+                </div>
+                <script>
+                    // Valid Bangalore Urban pincodes
+                    const validPincodes = [
+                        '560001', '560002', '560003', '560004', '560005', '560006', '560007', '560008', '560009', '560010',
+                        '560011', '560012', '560013', '560014', '560015', '560016', '560017', '560018', '560019', '560020',
+                        '560021', '560022', '560023', '560024', '560025', '560026', '560027', '560028', '560029', '560030',
+                        '560031', '560032', '560033', '560034', '560035', '560036', '560037', '560038', '560039', '560040',
+                        '560041', '560042', '560043', '560044', '560045', '560046', '560047', '560048', '560049', '560050',
+                        '560051', '560052', '560053', '560054', '560055', '560056', '560057', '560058', '560059', '560060',
+                        '560061', '560062', '560063', '560064', '560065', '560066', '560067', '560068', '560069', '560070',
+                        '560071', '560072', '560073', '560074', '560075', '560076', '560077', '560078', '560079', '560080',
+                        '560081', '560082', '560083', '560084', '560085', '560086', '560087', '560088', '560089', '560090',
+                        '560091', '560092', '560093', '560094', '560095', '560096', '560097', '560098', '560099', '560100',
+                        '560103'
+                    ];
+                    
+                    // Real-time pincode validation for checkout
+                    setTimeout(() => {
+                        const pincodeInput = document.getElementById('checkoutPincode');
+                        if (pincodeInput) {
+                            pincodeInput.addEventListener('input', function(e) {
+                                const pincode = e.target.value;
+                                const pincodeError = document.getElementById('checkoutPincodeError');
+                                const pincodeHelp = document.getElementById('checkoutPincodeHelp');
+                                
+                                if (pincode.length === 6) {
+                                    if (validPincodes.includes(pincode)) {
+                                        e.target.style.borderColor = '#4CAF50';
+                                        pincodeError.style.display = 'none';
+                                        pincodeHelp.style.display = 'block';
+                                        pincodeHelp.textContent = '✓ Valid Bangalore Urban pincode';
+                                        pincodeHelp.style.color = '#4CAF50';
+                                    } else {
+                                        e.target.style.borderColor = '#f44336';
+                                        pincodeHelp.style.display = 'none';
+                                        pincodeError.style.display = 'block';
+                                        pincodeError.textContent = '✗ Invalid pincode. We only deliver to Bangalore Urban (560001-560103)';
+                                    }
+                                } else {
+                                    e.target.style.borderColor = '#ddd';
+                                    pincodeError.style.display = 'none';
+                                    pincodeHelp.style.display = 'block';
+                                    pincodeHelp.textContent = 'Bangalore Urban pincodes only (560001-560103)';
+                                    pincodeHelp.style.color = '#667eea';
+                                }
+                            });
+                        }
+                    }, 100);
+                </script>
+                <div style="display: none;">
+                    <select name="pincode_hidden">
                         <option value="">Select your area</option>
                         <option value="560001">560001 - Bangalore GPO</option>
                         <option value="560002">560002 - Bangalore City</option>
