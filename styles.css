@@ -286,8 +286,8 @@ body {
 }
 
 .register-btn {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white !important;
+    background: #FFD700;
+    color: #1a1a1a !important;
     padding: 8px 20px;
     border-radius: 0;
     font-weight: 600;
@@ -297,8 +297,8 @@ body {
 }
 
 .register-btn:hover {
-    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
-    color: white !important;
+    background: #FFA500;
+    color: #1a1a1a !important;
 }
 
 .register-btn::after {
