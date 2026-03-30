@@ -8,6 +8,7 @@ from database import Database
 import razorpay
 import hmac
 import hashlib
+import bcrypt
 from security import PaymentSecurity, require_rate_limit, require_https
 
 # Load environment variables
@@ -899,6 +900,130 @@ def recover_order():
             }), 500
             
     except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/api/register', methods=['POST'])
+@require_rate_limit(max_requests=5, window=300)  # Max 5 registrations per 5 minutes
+def register_user():
+    """Register a new user"""
+    security = PaymentSecurity()
+    
+    try:
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['name', 'email', 'phone', 'password']
+        if not all(field in data for field in required_fields):
+            return jsonify({
+                'success': False,
+                'message': 'Missing required fields'
+            }), 400
+        
+        # Validate email
+        valid, msg = security.validate_email(data['email'])
+        if not valid:
+            return jsonify({
+                'success': False,
+                'message': msg
+            }), 400
+        
+        # Validate phone
+        valid, msg = security.validate_phone(data['phone'])
+        if not valid:
+            return jsonify({
+                'success': False,
+                'message': msg
+            }), 400
+        
+        # Validate password length
+        if len(data['password']) < 6:
+            return jsonify({
+                'success': False,
+                'message': 'Password must be at least 6 characters'
+            }), 400
+        
+        # Hash password
+        password_hash = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        # Create user
+        result = db.create_user(data['name'], data['email'], data['phone'], password_hash)
+        
+        if result['success']:
+            security.log_security_event('USER_REGISTERED', f'Email: {data["email"]}')
+            return jsonify({
+                'success': True,
+                'message': 'Account created successfully',
+                'user_id': result['user_id']
+            }), 201
+        else:
+            return jsonify({
+                'success': False,
+                'message': result['error']
+            }), 400
+            
+    except Exception as e:
+        print(f"❌ Registration error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/api/login', methods=['POST'])
+@require_rate_limit(max_requests=10, window=300)  # Max 10 login attempts per 5 minutes
+def login_user():
+    """Login user"""
+    security = PaymentSecurity()
+    
+    try:
+        data = request.json
+        
+        # Validate required fields
+        if not data.get('email') or not data.get('password'):
+            return jsonify({
+                'success': False,
+                'message': 'Email and password are required'
+            }), 400
+        
+        # Get user from database
+        user = db.get_user_by_email(data['email'])
+        
+        if not user:
+            security.log_security_event('LOGIN_FAILED', f'Email not found: {data["email"]}, IP: {request.remote_addr}')
+            return jsonify({
+                'success': False,
+                'message': 'Invalid email or password'
+            }), 401
+        
+        # Verify password
+        if bcrypt.checkpw(data['password'].encode('utf-8'), user['password_hash'].encode('utf-8')):
+            # Update last login
+            db.update_last_login(user['id'])
+            
+            security.log_security_event('LOGIN_SUCCESS', f'User: {user["email"]}')
+            
+            # Return user data (without password hash)
+            return jsonify({
+                'success': True,
+                'message': 'Login successful',
+                'user': {
+                    'id': user['id'],
+                    'name': user['name'],
+                    'email': user['email'],
+                    'phone': user['phone']
+                }
+            }), 200
+        else:
+            security.log_security_event('LOGIN_FAILED', f'Wrong password for: {data["email"]}, IP: {request.remote_addr}')
+            return jsonify({
+                'success': False,
+                'message': 'Invalid email or password'
+            }), 401
+            
+    except Exception as e:
+        print(f"❌ Login error: {str(e)}")
         return jsonify({
             'success': False,
             'message': str(e)

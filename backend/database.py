@@ -18,6 +18,19 @@ class Database:
         conn = self.get_connection()
         cursor = conn.cursor()
         
+        # Create users table for authentication
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_login TIMESTAMP
+            )
+        ''')
+        
         # Create customers table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS customers (
@@ -376,3 +389,66 @@ class Database:
             'total_contacts': total_contacts,
             'orders_by_status': orders_by_status
         }
+    
+    def create_user(self, name, email, phone, password_hash):
+        """Create a new user account"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                INSERT INTO users (name, email, phone, password_hash)
+                VALUES (?, ?, ?, ?)
+            ''', (name, email, phone, password_hash))
+            
+            user_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
+            return {
+                'success': True,
+                'user_id': user_id
+            }
+        except sqlite3.IntegrityError:
+            conn.close()
+            return {
+                'success': False,
+                'error': 'Email already registered'
+            }
+        except Exception as e:
+            conn.close()
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_user_by_email(self, email):
+        """Get user by email"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, name, email, phone, password_hash, created_at, last_login
+            FROM users
+            WHERE email = ?
+        ''', (email,))
+        
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user:
+            return dict(user)
+        return None
+    
+    def update_last_login(self, user_id):
+        """Update user's last login timestamp"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?
+        ''', (user_id,))
+        
+        conn.commit()
+        conn.close()
+        return True
