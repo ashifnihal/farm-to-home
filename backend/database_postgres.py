@@ -1,0 +1,563 @@
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from datetime import datetime
+import pytz
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Set IST timezone
+IST = pytz.timezone('Asia/Kolkata')
+
+def get_ist_now():
+    """Get current time in IST"""
+    return datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')
+
+class DatabasePostgres:
+    def __init__(self):
+        """Initialize PostgreSQL connection"""
+        self.connection_params = {
+            'host': os.getenv('POSTGRES_HOST', 'localhost'),
+            'port': os.getenv('POSTGRES_PORT', '5432'),
+            'database': os.getenv('POSTGRES_DB', 'farm_to_home'),
+            'user': os.getenv('POSTGRES_USER', 'postgres'),
+            'password': os.getenv('POSTGRES_PASSWORD', '')
+        }
+        self.init_database()
+    
+    def get_connection(self):
+        """Create a database connection"""
+        conn = psycopg2.connect(**self.connection_params)
+        # Set timezone to IST for this connection
+        cursor = conn.cursor()
+        cursor.execute("SET TIME ZONE 'Asia/Kolkata';")
+        cursor.close()
+        return conn
+    
+    def init_database(self):
+        """Initialize database tables"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Create users table for authentication
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    phone TEXT NOT NULL,
+                    address TEXT NOT NULL,
+                    city TEXT NOT NULL,
+                    pincode TEXT NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP
+                )
+            ''')
+            
+            # Create customers table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS customers (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    address TEXT NOT NULL,
+                    city TEXT NOT NULL,
+                    pincode TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Create orders table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS orders (
+                    id SERIAL PRIMARY KEY,
+                    customer_id INTEGER NOT NULL,
+                    order_number TEXT UNIQUE NOT NULL,
+                    order_type TEXT DEFAULT 'mango',
+                    total_amount DECIMAL(10, 2) NOT NULL,
+                    payment_method TEXT NOT NULL,
+                    upi_id TEXT,
+                    razorpay_order_id TEXT,
+                    razorpay_payment_id TEXT,
+                    order_status TEXT DEFAULT 'pending',
+                    order_date TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (customer_id) REFERENCES customers (id)
+                )
+            ''')
+            
+            # Create order_items table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS order_items (
+                    id SERIAL PRIMARY KEY,
+                    order_id INTEGER NOT NULL,
+                    item_name TEXT NOT NULL,
+                    item_type TEXT NOT NULL,
+                    quantity INTEGER NOT NULL,
+                    price DECIMAL(10, 2) NOT NULL,
+                    subtotal DECIMAL(10, 2) NOT NULL,
+                    FOREIGN KEY (order_id) REFERENCES orders (id)
+                )
+            ''')
+            
+            # Create contacts table for enquiry form
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS contacts (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    phone TEXT,
+                    message TEXT NOT NULL,
+                    status TEXT DEFAULT 'new',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            conn.commit()
+            print("✅ PostgreSQL Database initialized successfully")
+        except Exception as e:
+            print(f"❌ Error initializing PostgreSQL database: {str(e)}")
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def add_customer(self, customer_data):
+        """Add or update customer"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            # Check if customer exists by email
+            cursor.execute('SELECT id FROM customers WHERE email = %s', (customer_data['email'],))
+            existing = cursor.fetchone()
+            
+            if existing:
+                # Update existing customer
+                customer_id = existing['id']
+                cursor.execute('''
+                    UPDATE customers 
+                    SET name = %s, phone = %s, address = %s, city = %s, pincode = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                ''', (
+                    customer_data['name'],
+                    customer_data['phone'],
+                    customer_data['address'],
+                    customer_data['city'],
+                    customer_data['pincode'],
+                    customer_id
+                ))
+            else:
+                # Insert new customer
+                cursor.execute('''
+                    INSERT INTO customers (name, email, phone, address, city, pincode)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                ''', (
+                    customer_data['name'],
+                    customer_data['email'],
+                    customer_data['phone'],
+                    customer_data['address'],
+                    customer_data['city'],
+                    customer_data['pincode']
+                ))
+                customer_id = cursor.fetchone()['id']
+            
+            conn.commit()
+            return customer_id
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def add_order(self, order_data):
+        """Add new order with items"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            # Add customer first
+            customer_id = self.add_customer(order_data['customer'])
+            
+            # Generate order number using IST
+            ist_now = datetime.now(IST)
+            order_number = f"FTH{ist_now.strftime('%Y%m%d%H%M%S')}"
+            
+            # Extract payment details
+            upi_id = order_data.get('upi_id')
+            razorpay_order_id = order_data.get('razorpay_order_id')
+            razorpay_payment_id = order_data.get('razorpay_payment_id')
+            
+            # Determine order type based on items
+            order_type = 'mango'  # default
+            for item in order_data['items']:
+                if item.get('type') == 'tree':
+                    order_type = 'tree'
+                    break
+            
+            # Insert order with 'placed' status
+            cursor.execute('''
+                INSERT INTO orders (customer_id, order_number, order_type, total_amount, payment_method, upi_id, razorpay_order_id, razorpay_payment_id, order_status, order_date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                customer_id,
+                order_number,
+                order_type,
+                order_data['total'],
+                order_data['payment'],
+                upi_id,
+                razorpay_order_id,
+                razorpay_payment_id,
+                'placed',
+                order_data['orderDate']
+            ))
+            order_id = cursor.fetchone()['id']
+            
+            # Insert order items
+            for item in order_data['items']:
+                subtotal = item['price'] * item['quantity']
+                cursor.execute('''
+                    INSERT INTO order_items (order_id, item_name, item_type, quantity, price, subtotal)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', (
+                    order_id,
+                    item['name'],
+                    item.get('type', 'mango'),
+                    item['quantity'],
+                    item['price'],
+                    subtotal
+                ))
+            
+            conn.commit()
+            
+            return {
+                'success': True,
+                'order_id': order_id,
+                'order_number': order_number,
+                'customer_id': customer_id
+            }
+            
+        except Exception as e:
+            conn.rollback()
+            return {
+                'success': False,
+                'error': str(e)
+            }
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_all_orders(self, limit=100):
+        """Get all orders with customer details"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                SELECT 
+                    o.id, o.order_number, o.order_type, o.total_amount, o.payment_method, 
+                    o.upi_id, o.razorpay_order_id, o.razorpay_payment_id,
+                    o.order_status, 
+                    to_char(o.order_date AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD"T"HH24:MI:SS') as order_date,
+                    to_char(o.created_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD"T"HH24:MI:SS') as created_at,
+                    c.name as customer_name, c.email as customer_email, 
+                    c.phone as customer_phone, c.address, c.city, c.pincode
+                FROM orders o
+                JOIN customers c ON o.customer_id = c.id
+                ORDER BY o.created_at DESC
+                LIMIT %s
+            ''', (limit,))
+            
+            orders = [dict(row) for row in cursor.fetchall()]
+            return orders
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_order_details(self, order_id):
+        """Get complete order details including items"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            # Get order and customer info
+            cursor.execute('''
+                SELECT 
+                    o.*, 
+                    c.name as customer_name, c.email as customer_email, 
+                    c.phone as customer_phone, c.address, c.city, c.pincode
+                FROM orders o
+                JOIN customers c ON o.customer_id = c.id
+                WHERE o.id = %s
+            ''', (order_id,))
+            
+            order = cursor.fetchone()
+            if not order:
+                return None
+            
+            order_dict = dict(order)
+            
+            # Get order items
+            cursor.execute('''
+                SELECT * FROM order_items WHERE order_id = %s
+            ''', (order_id,))
+            
+            order_dict['items'] = [dict(row) for row in cursor.fetchall()]
+            return order_dict
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_customer_orders(self, customer_email):
+        """Get all orders for a specific customer"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                SELECT o.* FROM orders o
+                JOIN customers c ON o.customer_id = c.id
+                WHERE c.email = %s
+                ORDER BY o.created_at DESC
+            ''', (customer_email,))
+            
+            orders = [dict(row) for row in cursor.fetchall()]
+            return orders
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def update_order_status(self, order_id, status):
+        """Update order status"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                UPDATE orders SET order_status = %s WHERE id = %s
+            ''', (status, order_id))
+            
+            conn.commit()
+            return True
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def add_contact(self, contact_data):
+        """Add new contact form submission"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                INSERT INTO contacts (name, email, phone, message, status, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                contact_data['name'],
+                contact_data['email'],
+                contact_data.get('phone', ''),
+                contact_data['message'],
+                'new',
+                get_ist_now()
+            ))
+            
+            contact_id = cursor.fetchone()['id']
+            conn.commit()
+            
+            return {
+                'success': True,
+                'contact_id': contact_id
+            }
+            
+        except Exception as e:
+            conn.rollback()
+            return {
+                'success': False,
+                'error': str(e)
+            }
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_all_contacts(self, limit=100):
+        """Get all contact form submissions"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                SELECT 
+                    id, name, email, phone, message, status,
+                    to_char(created_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD"T"HH24:MI:SS') as created_at
+                FROM contacts
+                ORDER BY created_at DESC
+                LIMIT %s
+            ''', (limit,))
+            
+            contacts = [dict(row) for row in cursor.fetchall()]
+            return contacts
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def update_contact_status(self, contact_id, status):
+        """Update contact status"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                UPDATE contacts SET status = %s WHERE id = %s
+            ''', (status, contact_id))
+            
+            conn.commit()
+            return True
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_statistics(self):
+        """Get database statistics"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            # Total customers
+            cursor.execute('SELECT COUNT(*) as count FROM customers')
+            total_customers = cursor.fetchone()['count']
+            
+            # Total orders
+            cursor.execute('SELECT COUNT(*) as count FROM orders')
+            total_orders = cursor.fetchone()['count']
+            
+            # Total revenue
+            cursor.execute('SELECT SUM(total_amount) as revenue FROM orders')
+            result = cursor.fetchone()
+            total_revenue = float(result['revenue']) if result['revenue'] else 0
+            
+            # Total contacts
+            cursor.execute('SELECT COUNT(*) as count FROM contacts')
+            total_contacts = cursor.fetchone()['count']
+            
+            # Orders by status
+            cursor.execute('''
+                SELECT order_status, COUNT(*) as count 
+                FROM orders 
+                GROUP BY order_status
+            ''')
+            orders_by_status = {row['order_status']: row['count'] for row in cursor.fetchall()}
+            
+            return {
+                'total_customers': total_customers,
+                'total_orders': total_orders,
+                'total_revenue': total_revenue,
+                'total_contacts': total_contacts,
+                'orders_by_status': orders_by_status
+            }
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def create_user(self, name, email, phone, address, city, pincode, password_hash):
+        """Create a new user account"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                INSERT INTO users (name, email, phone, address, city, pincode, password_hash)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (name, email, phone, address, city, pincode, password_hash))
+            
+            user_id = cursor.fetchone()['id']
+            conn.commit()
+            
+            return {
+                'success': True,
+                'user_id': user_id
+            }
+        except psycopg2.IntegrityError:
+            conn.rollback()
+            return {
+                'success': False,
+                'error': 'Email already registered'
+            }
+        except Exception as e:
+            conn.rollback()
+            return {
+                'success': False,
+                'error': str(e)
+            }
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_user_by_email(self, email):
+        """Get user by email"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                SELECT id, name, email, phone, password_hash, created_at, last_login
+                FROM users
+                WHERE email = %s
+            ''', (email,))
+            
+            user = cursor.fetchone()
+            
+            if user:
+                return dict(user)
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def update_last_login(self, user_id):
+        """Update user's last login timestamp"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = %s
+            ''', (user_id,))
+            
+            conn.commit()
+            return True
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def get_all_users(self, limit=100):
+        """Get all registered users (without password hashes)"""
+        conn = self.get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        try:
+            cursor.execute('''
+                SELECT 
+                    id, name, email, phone, address, city, pincode,
+                    to_char(created_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD"T"HH24:MI:SS') as created_at,
+                    to_char(last_login AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM-DD"T"HH24:MI:SS') as last_login
+                FROM users
+                ORDER BY created_at DESC
+                LIMIT %s
+            ''', (limit,))
+            
+            users = [dict(row) for row in cursor.fetchall()]
+            return users
+        finally:
+            cursor.close()
+            conn.close()

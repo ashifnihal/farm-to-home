@@ -5,7 +5,6 @@ from datetime import datetime
 import pytz
 from dotenv import load_dotenv
 import requests
-from database import Database
 import razorpay
 import hmac
 import hashlib
@@ -14,6 +13,16 @@ from security import PaymentSecurity, require_rate_limit, require_https
 
 # Load environment variables
 load_dotenv()
+
+# Database selection based on environment variable
+DATABASE_TYPE = os.getenv('DATABASE_TYPE', 'sqlite').lower()
+
+if DATABASE_TYPE == 'postgres':
+    from database_postgres import DatabasePostgres as Database
+    print("🐘 Using PostgreSQL database")
+else:
+    from database import Database
+    print("📁 Using SQLite database")
 
 # Set IST timezone
 IST = pytz.timezone('Asia/Kolkata')

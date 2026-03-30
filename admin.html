@@ -491,6 +491,7 @@
                     <thead>
                         <tr>
                             <th>Order #</th>
+                            <th>Type</th>
                             <th>Customer</th>
                             <th>Phone</th>
                             <th>Total</th>
@@ -501,9 +502,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${orders.map(order => `
+                        ${orders.map(order => {
+                            const orderType = order.order_type || 'product';
+                            const typeIcon = orderType === 'tree' ? '🌳' : '🥭';
+                            const typeLabel = orderType === 'tree' ? 'Tree' : 'Product';
+                            return `
                             <tr>
                                 <td><strong>${order.order_number}</strong></td>
+                                <td><span style="background: ${orderType === 'tree' ? '#d4edda' : '#fff3cd'}; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600;">${typeIcon} ${typeLabel}</span></td>
                                 <td>${order.customer_name}</td>
                                 <td>${order.customer_phone}</td>
                                 <td><strong>₹${order.total_amount.toLocaleString('en-IN')}</strong></td>
@@ -512,7 +518,8 @@
                                 <td>${new Date(order.created_at).toLocaleDateString('en-IN')}</td>
                                 <td><button class="view-btn" onclick="viewOrder(${order.id})">View</button></td>
                             </tr>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
             `;
@@ -600,6 +607,20 @@
                             ${order.razorpay_order_id ? `<p><strong>Razorpay Order ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${order.razorpay_order_id}</code></p>` : ''}
                             ${order.razorpay_payment_id ? `<p><strong>Razorpay Payment ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${order.razorpay_payment_id}</code></p>` : ''}
                         </div>
+
+                        <div class="order-detail">
+                            <h3>📄 Admin Actions</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                                <button class="view-btn" onclick="downloadAdminInvoice(${order.id})">
+                                    📥 Download Invoice
+                                </button>
+                                ${order.order_type === 'tree' ? `
+                                    <button class="view-btn" style="background: #FFD700; color: #1a1a1a;" onclick="viewAdminCertificate(${order.id})">
+                                        🎖️ View Certificate
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
                     `;
                     
                     document.getElementById('orderDetails').innerHTML = detailsHTML;
@@ -612,6 +633,177 @@
 
         function closeModal() {
             document.getElementById('orderModal').classList.remove('show');
+        }
+
+        // Download invoice from admin side
+        async function downloadAdminInvoice(orderId) {
+            try {
+                const response = await fetch(`${API_URL}/api/orders/${orderId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const order = data.order;
+                    const invoiceHTML = generateInvoiceHTML(order.order_number, order);
+                    
+                    const blob = new Blob([invoiceHTML], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Invoice_${order.order_number}_Admin.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    alert('✅ Invoice downloaded successfully!');
+                }
+            } catch (error) {
+                alert('Error downloading invoice: ' + error.message);
+            }
+        }
+
+        // View certificate from admin side
+        async function viewAdminCertificate(orderId) {
+            try {
+                const response = await fetch(`${API_URL}/api/orders/${orderId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const order = data.order;
+                    const item = order.items[0];
+                    
+                    // Determine plan type and yield
+                    const planName = item.item_name;
+                    let expectedYield = '40-60 kg';
+                    
+                    if (planName.includes('Starter')) {
+                        expectedYield = '15-25 kg';
+                    } else if (planName.includes('Premium')) {
+                        expectedYield = '40-60 kg';
+                    } else if (planName.includes('Royal')) {
+                        expectedYield = '80-120 kg';
+                    }
+                    
+                    // Generate unique tree ID
+                    const treeId = 'FTH-TREE-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                    
+                    // Open certificate in new window
+                    const certificateUrl = `certificate.html?name=${encodeURIComponent(order.customer_name)}&treeId=${treeId}&plan=${encodeURIComponent(planName)}&yield=${encodeURIComponent(expectedYield)}&orderNumber=${order.order_number}`;
+                    window.open(certificateUrl, '_blank');
+                }
+            } catch (error) {
+                alert('Error viewing certificate: ' + error.message);
+            }
+        }
+
+        // Generate invoice HTML (same logic as customer side)
+        function generateInvoiceHTML(orderId, orderData) {
+            const orderDate = new Date(orderData.created_at || orderData.orderDate);
+            const subtotal = orderData.items.reduce((sum, item) => sum + item.subtotal, 0);
+            const deliveryCharge = 500;
+            
+            return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - ${orderId}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 40px; background: #fff; }
+        .invoice-container { max-width: 800px; margin: 0 auto; border: 2px solid #000; padding: 30px; }
+        .header { text-align: center; border-bottom: 3px solid #FFD700; padding-bottom: 20px; margin-bottom: 30px; }
+        .company-name { font-size: 32px; font-weight: bold; color: #FFD700; margin-bottom: 5px; }
+        .company-tagline { font-size: 14px; color: #666; font-style: italic; }
+        .invoice-title { font-size: 24px; font-weight: bold; margin: 20px 0; text-align: center; }
+        .invoice-details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .detail-section { flex: 1; }
+        .detail-section h3 { font-size: 16px; margin-bottom: 10px; color: #333; border-bottom: 2px solid #FFD700; padding-bottom: 5px; }
+        .detail-section p { margin: 5px 0; font-size: 14px; line-height: 1.6; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #FFD700; color: #000; padding: 12px; text-align: left; font-weight: bold; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; }
+        .total-row { background: #f8f8f8; font-weight: bold; font-size: 16px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #FFD700; text-align: center; font-size: 12px; color: #666; }
+        @media print { body { padding: 0; } .invoice-container { border: none; } }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div class="company-name">🥭 FARM TO HOME 🥭</div>
+            <div class="company-tagline">Nature's Gold, Delivered Fresh</div>
+            <p style="margin-top: 10px; font-size: 12px;">
+                📍 Chittoor, Andhra Pradesh 517001<br>
+                📞 +91 8247221546 | 📧 care@farmtohome.in
+            </p>
+        </div>
+        
+        <div class="invoice-title">TAX INVOICE</div>
+        
+        <div class="invoice-details">
+            <div class="detail-section">
+                <h3>Invoice Details</h3>
+                <p><strong>Invoice No:</strong> ${orderId}</p>
+                <p><strong>Date:</strong> ${orderDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                <p><strong>Time:</strong> ${orderDate.toLocaleTimeString('en-IN')}</p>
+                <p><strong>Payment:</strong> ${orderData.payment_method.toUpperCase()}</p>
+            </div>
+            
+            <div class="detail-section">
+                <h3>Bill To</h3>
+                <p><strong>${orderData.customer_name}</strong></p>
+                <p>${orderData.address}</p>
+                <p>${orderData.city} - ${orderData.pincode}</p>
+                <p>📞 ${orderData.customer_phone}</p>
+                <p>📧 ${orderData.customer_email}</p>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Item Description</th>
+                    <th style="width: 80px; text-align: center;">Qty</th>
+                    <th style="width: 120px; text-align: right;">Price</th>
+                    <th style="width: 120px; text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${orderData.items.map((item, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.item_name}</td>
+                        <td style="text-align: center;">${item.quantity}</td>
+                        <td style="text-align: right;">₹${item.price.toLocaleString('en-IN')}</td>
+                        <td style="text-align: right;">₹${item.subtotal.toLocaleString('en-IN')}</td>
+                    </tr>
+                `).join('')}
+                <tr style="border-top: 2px solid #ddd;">
+                    <td colspan="4" style="text-align: right; padding-top: 15px;"><strong>Subtotal:</strong></td>
+                    <td style="text-align: right; padding-top: 15px;"><strong>₹${subtotal.toLocaleString('en-IN')}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right;">Delivery Charges:</td>
+                    <td style="text-align: right;">₹${deliveryCharge.toLocaleString('en-IN')}</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="4" style="text-align: right; font-size: 18px;">TOTAL AMOUNT:</td>
+                    <td style="text-align: right; font-size: 18px;">₹${orderData.total_amount.toLocaleString('en-IN')}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <p><strong>Farm to Home®</strong> - India's Premium Mango Delivery Service</p>
+            <p>Cultivating Excellence, Delivering Happiness</p>
+            <p style="margin-top: 10px;">🥭 From Our Orchards to Your Table - Freshness Guaranteed 🥭</p>
+        </div>
+    </div>
+</body>
+</html>
+            `;
         }
 
         // Load data on page load
