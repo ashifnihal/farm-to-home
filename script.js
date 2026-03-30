@@ -224,9 +224,18 @@ function showCheckoutModal() {
                     <label>Phone Number *</label>
                     <input type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" pattern="[0-9]{10}">
                 </div>
+                <h3 style="margin: 1.5rem 0 1rem 0; color: #333; border-bottom: 2px solid #FFD700; padding-bottom: 0.5rem;">📍 Delivery Address</h3>
                 <div class="form-group">
-                    <label>Delivery Address *</label>
-                    <textarea name="address" required rows="3" placeholder="Enter complete delivery address"></textarea>
+                    <label>House/Flat Number, Building Name *</label>
+                    <input type="text" name="house" required placeholder="e.g., Flat 301, Green Valley Apartments">
+                </div>
+                <div class="form-group">
+                    <label>Street / Area / Locality *</label>
+                    <input type="text" name="street" required placeholder="e.g., 15th Cross, Indiranagar">
+                </div>
+                <div class="form-group">
+                    <label>Landmark (Optional)</label>
+                    <input type="text" name="landmark" placeholder="e.g., Near Metro Station, Opposite Park">
                 </div>
                 <div class="form-group">
                     <label>City *</label>
@@ -234,10 +243,18 @@ function showCheckoutModal() {
                     <small style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">Currently delivering to Bangalore only</small>
                 </div>
                 <div class="form-group">
-                    <label>Pincode *</label>
+                    <label>State *</label>
+                    <input type="text" name="state" required value="Karnataka" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                    <label>PIN Code *</label>
                     <input type="text" name="pincode" id="checkoutPincode" required placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
                     <small id="checkoutPincodeHelp" style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">Bangalore Urban pincodes only (560001-560103)</small>
                     <small id="checkoutPincodeError" style="color: #f44336; font-size: 12px; display: none; margin-top: 5px;"></small>
+                </div>
+                <div class="form-group">
+                    <label>Country *</label>
+                    <input type="text" name="country" required value="India" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
                 </div>
                 <div style="display: none;">
                     <select name="pincode_hidden">
@@ -453,9 +470,13 @@ async function placeOrder(event) {
     const name = formData.get('name')?.trim();
     const email = formData.get('email')?.trim();
     const phone = formData.get('phone')?.trim();
-    const address = formData.get('address')?.trim();
+    const house = formData.get('house')?.trim();
+    const street = formData.get('street')?.trim();
+    const landmark = formData.get('landmark')?.trim() || '';
     const city = formData.get('city')?.trim();
+    const state = formData.get('state')?.trim();
     const pincode = formData.get('pincode')?.trim();
+    const country = formData.get('country')?.trim();
     
     // Comprehensive validation before processing
     
@@ -486,20 +507,33 @@ async function placeOrder(event) {
         return;
     }
     
-    // 4. Validate Address (minimum 10 characters)
-    if (!address || address.length < 10) {
-        showNotification('Please enter a complete delivery address (minimum 10 characters)', 'error');
-        event.target.querySelector('textarea[name="address"]').focus();
+    // 4. Validate House/Flat Number (minimum 3 characters)
+    if (!house || house.length < 3) {
+        showNotification('Please enter house/flat number and building name', 'error');
+        event.target.querySelector('input[name="house"]').focus();
         return;
     }
     
-    // 5. Validate City (must be Bangalore)
+    // 5. Validate Street/Area (minimum 5 characters)
+    if (!street || street.length < 5) {
+        showNotification('Please enter street/area/locality', 'error');
+        event.target.querySelector('input[name="street"]').focus();
+        return;
+    }
+    
+    // 6. Validate City (must be Bangalore)
     if (!city || city.toLowerCase() !== 'bangalore') {
         showNotification('We currently deliver only to Bangalore', 'error');
         return;
     }
     
-    // 6. Validate Bangalore Urban pincode
+    // 7. Validate State (must be Karnataka)
+    if (!state || state.toLowerCase() !== 'karnataka') {
+        showNotification('We currently deliver only to Karnataka', 'error');
+        return;
+    }
+    
+    // 8. Validate Bangalore Urban pincode
     const validPincodes = [
         '560001', '560002', '560003', '560004', '560005', '560006', '560007', '560008', '560009', '560010',
         '560011', '560012', '560013', '560014', '560015', '560016', '560017', '560018', '560019', '560020',
@@ -531,14 +565,22 @@ async function placeOrder(event) {
     submitButton.style.cursor = 'not-allowed';
     
     try {
+        // Build complete address string
+        const fullAddress = `${house}, ${street}${landmark ? ', ' + landmark : ''}, ${city}, ${state} - ${pincode}, ${country}`;
+        
         const orderData = {
             customer: {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                phone: formData.get('phone'),
-                address: formData.get('address'),
-                city: formData.get('city'),
-                pincode: formData.get('pincode')
+                name: name,
+                email: email,
+                phone: phone,
+                address: fullAddress,
+                house: house,
+                street: street,
+                landmark: landmark,
+                city: city,
+                state: state,
+                pincode: pincode,
+                country: country
             },
             payment: 'upi',  // Always UPI
             items: cart,
