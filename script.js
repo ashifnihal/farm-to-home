@@ -438,7 +438,7 @@ async function verifyAndSaveOrder(paymentResponse, orderData, submitButton, orig
         
         console.log('✅ Payment verified successfully');
         
-        // Step 2: Save order to database
+        // Step 2: Save order to database with payment details
         console.log('💾 Saving order to database...');
         const saveResponse = await fetch(`${API_URL}/api/place-order`, {
             method: 'POST',
@@ -447,7 +447,9 @@ async function verifyAndSaveOrder(paymentResponse, orderData, submitButton, orig
             },
             body: JSON.stringify({
                 ...orderData,
-                payment_id: paymentResponse.razorpay_payment_id,
+                upi_id: paymentResponse.upi_id || null,
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
                 payment_status: 'paid'
             })
         });

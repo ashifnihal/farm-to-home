@@ -41,6 +41,9 @@ class Database:
                 order_number TEXT UNIQUE NOT NULL,
                 total_amount REAL NOT NULL,
                 payment_method TEXT NOT NULL,
+                upi_id TEXT,
+                razorpay_order_id TEXT,
+                razorpay_payment_id TEXT,
                 order_status TEXT DEFAULT 'pending',
                 order_date TIMESTAMP NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -134,15 +137,23 @@ class Database:
             # Generate order number
             order_number = f"FTH{datetime.now().strftime('%Y%m%d%H%M%S')}"
             
+            # Extract payment details
+            upi_id = order_data.get('upi_id')
+            razorpay_order_id = order_data.get('razorpay_order_id')
+            razorpay_payment_id = order_data.get('razorpay_payment_id')
+            
             # Insert order with 'placed' status
             cursor.execute('''
-                INSERT INTO orders (customer_id, order_number, total_amount, payment_method, order_status, order_date)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO orders (customer_id, order_number, total_amount, payment_method, upi_id, razorpay_order_id, razorpay_payment_id, order_status, order_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 customer_id,
                 order_number,
                 order_data['total'],
                 order_data['payment'],
+                upi_id,
+                razorpay_order_id,
+                razorpay_payment_id,
                 'placed',
                 order_data['orderDate']
             ))
@@ -189,6 +200,7 @@ class Database:
         cursor.execute('''
             SELECT 
                 o.id, o.order_number, o.total_amount, o.payment_method, 
+                o.upi_id, o.razorpay_order_id, o.razorpay_payment_id,
                 o.order_status, o.order_date, o.created_at,
                 c.name as customer_name, c.email as customer_email, 
                 c.phone as customer_phone, c.address, c.city, c.pincode
