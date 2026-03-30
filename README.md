@@ -45,7 +45,14 @@ A complete e-commerce platform for renting mango trees and selling premium mango
 - 🥭 6 Premium mango varieties
 - 🌳 3 Tree rental plans
 - 📦 Custom gift boxes
-- 🚚 Pan-India delivery
+- 🚚 Bangalore Urban delivery only
+
+### **Delivery Coverage**
+- 📍 **Bangalore Urban Only** (101 Pincodes)
+- ✅ Real-time pincode validation
+- ✅ Valid Range: 560001-560100, 560103
+- ✅ Instant feedback (Green ✓ / Red ✗)
+- ✅ Cannot place order with invalid pincode
 
 ## 🚀 Quick Start
 
@@ -165,6 +172,33 @@ RECEIVER_EMAIL=your@email.com
 **Sign up:** https://signup.mailgun.com
 
 ## 🧪 Testing
+
+### Test Pincode Validation
+
+**Valid Bangalore Urban Pincodes:**
+```
+560001 - Bangalore GPO
+560028 - Koramangala
+560038 - Jayanagar
+560100 - Yelahanka
+560103 - Whitefield
+... (101 pincodes total)
+```
+
+**Invalid Pincodes (Will be rejected):**
+```
+400001 - Mumbai (✗)
+110001 - Delhi (✗)
+560104 - Outside range (✗)
+560200 - Outside range (✗)
+```
+
+**Validation Features:**
+- ✅ Real-time validation as you type
+- ✅ Green border for valid pincodes
+- ✅ Red border for invalid pincodes
+- ✅ Clear error messages
+- ✅ Order blocked if pincode invalid
 
 ### Test UPI Payment
 
