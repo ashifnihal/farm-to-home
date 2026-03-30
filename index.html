@@ -107,8 +107,9 @@
                 <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
                 <li><a href="#" class="cart-icon">🛒 <span class="cart-count">0</span></a></li>
-                <li><a href="login.html" class="login-btn">Login</a></li>
-                <li><a href="register.html" class="register-btn">Register</a></li>
+                <li id="auth-nav">
+                    <!-- Will be populated by JavaScript based on login status -->
+                </li>
             </ul>
         </div>
     </nav>
@@ -391,5 +392,45 @@
     
     <!-- Custom JavaScript -->
     <script src="script.js"></script>
+    
+    <!-- Auth Status Check -->
+    <script>
+        // Check login status and update navigation
+        function updateAuthNav() {
+            const currentUser = localStorage.getItem('currentUser');
+            const authNav = document.getElementById('auth-nav');
+            
+            if (currentUser) {
+                // User is logged in - show user name and logout
+                const user = JSON.parse(currentUser);
+                authNav.innerHTML = `
+                    <a href="dashboard.html" style="color: #FFD700; text-decoration: none; margin-right: 15px;">
+                        👤 ${user.name}
+                    </a>
+                    <a href="#" class="login-btn" onclick="handleLogout(); return false;">Logout</a>
+                `;
+            } else {
+                // User is not logged in - show login and register buttons
+                authNav.innerHTML = `
+                    <a href="login.html" class="login-btn">Login</a>
+                    <a href="register.html" class="register-btn" style="margin-left: 10px;">Register</a>
+                `;
+            }
+        }
+        
+        function handleLogout() {
+            // Clear user session
+            localStorage.removeItem('currentUser');
+            
+            // Show logout message
+            alert('You have been logged out successfully!');
+            
+            // Redirect to homepage
+            window.location.href = 'index.html';
+        }
+        
+        // Update navigation on page load
+        document.addEventListener('DOMContentLoaded', updateAuthNav);
+    </script>
 </body>
 </html>
