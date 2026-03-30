@@ -139,6 +139,12 @@ http://localhost:8000
 
 ## 📚 Documentation
 
+### **API Documentation** 🆕
+- **[Interactive API Docs](http://localhost:8000/api-docs.html)** - Swagger UI documentation ✨
+- **[OpenAPI Specification](backend/swagger.json)** - Complete API spec
+- **15+ Endpoints** - Fully documented with examples
+- **Try it out** - Test APIs directly from browser
+
 ### **Latest Updates** ✨
 - **[PostgreSQL Migration](POSTGRESQL-MIGRATION-COMPLETE.md)** - Complete PostgreSQL setup guide
 - **[PostgreSQL Setup](backend/POSTGRES_SETUP.md)** - Database configuration
@@ -309,23 +315,36 @@ Use these test credentials:
 
 ## 📊 API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/place-order` | POST | Place order |
-| `/api/create-payment-order` | POST | Create Razorpay order |
-| `/api/verify-payment` | POST | Verify payment |
-| `/api/orders` | GET | Get all orders |
-| `/api/orders/<id>` | GET | Get order details |
-| `/api/contact` | POST | Submit contact form |
-| `/api/contacts` | GET | Get all contacts |
-| `/api/statistics` | GET | Get statistics |
-| `/api/users` | GET | Get all users |
-| `/api/register` | POST | Register user |
-| `/api/login` | POST | Login user |
+### **Interactive Documentation**
+🎯 **[View Full API Documentation](http://localhost:8000/api-docs.html)** - Swagger UI with live testing
+
+### **Quick Reference**
+
+| Endpoint | Method | Description | Documentation |
+|----------|--------|-------------|---------------|
+| `/api/health` | GET | Health check | [Try it](http://localhost:8000/api-docs.html#/Health/get_api_health) |
+| `/api/place-order` | POST | Place order | [Try it](http://localhost:8000/api-docs.html#/Orders/post_api_place_order) |
+| `/api/orders` | GET | Get all orders | [Try it](http://localhost:8000/api-docs.html#/Orders/get_api_orders) |
+| `/api/orders/{id}` | GET | Get order details | [Try it](http://localhost:8000/api-docs.html#/Orders/get_api_orders__id_) |
+| `/api/create-payment-order` | POST | Create Razorpay order | [Try it](http://localhost:8000/api-docs.html#/Payment/post_api_create_payment_order) |
+| `/api/verify-payment` | POST | Verify payment | [Try it](http://localhost:8000/api-docs.html#/Payment/post_api_verify_payment) |
+| `/api/contact` | POST | Submit contact form | [Try it](http://localhost:8000/api-docs.html#/Contacts/post_api_contact) |
+| `/api/contacts` | GET | Get all contacts | [Try it](http://localhost:8000/api-docs.html#/Contacts/get_api_contacts) |
+| `/api/register` | POST | Register user | [Try it](http://localhost:8000/api-docs.html#/Users/post_api_register) |
+| `/api/login` | POST | Login user | [Try it](http://localhost:8000/api-docs.html#/Users/post_api_login) |
+| `/api/users` | GET | Get all users | [Try it](http://localhost:8000/api-docs.html#/Users/get_api_users) |
+| `/api/statistics` | GET | Get statistics | [Try it](http://localhost:8000/api-docs.html#/Statistics/get_api_statistics) |
+
+**Features:**
+- ✅ Interactive testing
+- ✅ Request/response examples
+- ✅ Schema validation
+- ✅ Try it out functionality
+- ✅ OpenAPI 3.0 specification
 
 ## 🌐 Pages
 
+### **Customer Pages**
 - **Home:** http://localhost:8000/index.html
 - **Shop:** http://localhost:8000/shop.html
 - **Rent Trees:** http://localhost:8000/rent-trees.html
@@ -334,7 +353,13 @@ Use these test credentials:
 - **Login:** http://localhost:8000/login.html
 - **Register:** http://localhost:8000/register.html
 - **Dashboard:** http://localhost:8000/dashboard.html
-- **Admin:** http://localhost:8000/admin.html
+
+### **Admin Pages**
+- **Admin Dashboard:** http://localhost:8000/admin.html
+
+### **Developer Pages** 🆕
+- **API Documentation:** http://localhost:8000/api-docs.html ✨
+- **Swagger JSON:** http://localhost:5001/backend/swagger.json
 
 ## 💳 Payment Methods
 
@@ -457,6 +482,7 @@ See deployment guides in documentation.
 - [x] **IST timezone support** ✨
 - [x] **PostgreSQL database** ✨
 - [x] **Mobile optimization** ✨
+- [x] **API documentation (Swagger/OpenAPI)** ✨
 - [x] **Admin dashboard with structured addresses** ✨
 - [ ] Order tracking
 - [ ] SMS notifications
