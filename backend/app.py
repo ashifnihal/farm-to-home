@@ -47,6 +47,7 @@ def health_check():
 def place_order():
     """
     Endpoint to receive order and send email notification
+    Enhanced with payment recovery for failed saves
     """
     try:
         # Get order data from request
@@ -60,14 +61,70 @@ def place_order():
                 'message': 'Missing required fields'
             }), 400
         
-        # Save order to database
-        db_result = db.add_order(order_data)
+        # Log payment details for recovery
+        payment_id = order_data.get('razorpay_payment_id', 'N/A')
+        order_id = order_data.get('razorpay_order_id', 'N/A')
+        print(f"💳 Processing order with payment ID: {payment_id}")
         
-        if not db_result['success']:
-            print(f"❌ Database error: {db_result['error']}")
+        # Save order to database with retry logic
+        max_retries = 3
+        db_result = None
+        
+        for attempt in range(max_retries):
+            try:
+                db_result = db.add_order(order_data)
+                if db_result['success']:
+                    break
+                print(f"⚠️  Retry {attempt + 1}/{max_retries}: {db_result.get('error')}")
+            except Exception as retry_error:
+                print(f"⚠️  Retry {attempt + 1}/{max_retries} failed: {str(retry_error)}")
+                if attempt < max_retries - 1:
+                    import time
+                    time.sleep(0.5)  # Wait before retry
+        
+        if not db_result or not db_result['success']:
+            error_msg = db_result.get('error', 'Unknown error') if db_result else 'Database connection failed'
+            print(f"❌ Database error after {max_retries} attempts: {error_msg}")
+            print(f"💳 PAYMENT COMPLETED BUT ORDER NOT SAVED!")
+            print(f"💳 Payment ID: {payment_id}")
+            print(f"💳 Order ID: {order_id}")
+            print(f"💳 Customer: {order_data['customer']['name']} ({order_data['customer']['email']})")
+            print(f"💳 Amount: ₹{order_data['total']}")
+            
+            # Log to file for manual recovery
+            try:
+                import json
+                from datetime import datetime
+                recovery_file = 'failed_orders.json'
+                failed_order = {
+                    'timestamp': datetime.now().isoformat(),
+                    'payment_id': payment_id,
+                    'order_id': order_id,
+                    'order_data': order_data,
+                    'error': error_msg
+                }
+                
+                # Append to recovery file
+                try:
+                    with open(recovery_file, 'r') as f:
+                        failed_orders = json.load(f)
+                except:
+                    failed_orders = []
+                
+                failed_orders.append(failed_order)
+                
+                with open(recovery_file, 'w') as f:
+                    json.dump(failed_orders, f, indent=2)
+                
+                print(f"📝 Failed order logged to {recovery_file} for recovery")
+            except Exception as log_error:
+                print(f"❌ Could not log failed order: {str(log_error)}")
+            
             return jsonify({
                 'success': False,
-                'message': f'Failed to save order: {db_result["error"]}'
+                'message': f'Payment successful but order save failed. Payment ID: {payment_id}. Please contact support.',
+                'payment_id': payment_id,
+                'requires_manual_recovery': True
             }), 500
         
         print(f"✅ Order saved to database: {db_result['order_number']}")
@@ -96,10 +153,12 @@ def place_order():
         return response
             
     except Exception as e:
-        print(f"Error processing order: {str(e)}")
+        print(f"❌ Critical error processing order: {str(e)}")
+        print(f"💳 Payment ID: {order_data.get('razorpay_payment_id', 'N/A')}")
         return jsonify({
             'success': False,
-            'message': f'Error processing order: {str(e)}'
+            'message': f'Error processing order: {str(e)}',
+            'payment_id': order_data.get('razorpay_payment_id')
         }), 500
 
 @app.route('/api/orders', methods=['GET'])
@@ -695,6 +754,104 @@ def verify_payment():
             
     except Exception as e:
         print(f"❌ Error verifying payment: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/api/failed-orders', methods=['GET'])
+def get_failed_orders():
+    """Get list of failed orders for manual recovery"""
+    try:
+        import json
+        recovery_file = 'failed_orders.json'
+        
+        try:
+            with open(recovery_file, 'r') as f:
+                failed_orders = json.load(f)
+            return jsonify({
+                'success': True,
+                'failed_orders': failed_orders,
+                'count': len(failed_orders)
+            }), 200
+        except FileNotFoundError:
+            return jsonify({
+                'success': True,
+                'failed_orders': [],
+                'count': 0,
+                'message': 'No failed orders found'
+            }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/api/recover-order', methods=['POST'])
+def recover_order():
+    """Manually recover a failed order"""
+    try:
+        data = request.json
+        payment_id = data.get('payment_id')
+        
+        if not payment_id:
+            return jsonify({
+                'success': False,
+                'message': 'Payment ID is required'
+            }), 400
+        
+        # Load failed orders
+        import json
+        recovery_file = 'failed_orders.json'
+        
+        try:
+            with open(recovery_file, 'r') as f:
+                failed_orders = json.load(f)
+        except FileNotFoundError:
+            return jsonify({
+                'success': False,
+                'message': 'No failed orders found'
+            }), 404
+        
+        # Find the order
+        order_to_recover = None
+        remaining_orders = []
+        
+        for order in failed_orders:
+            if order['payment_id'] == payment_id:
+                order_to_recover = order
+            else:
+                remaining_orders.append(order)
+        
+        if not order_to_recover:
+            return jsonify({
+                'success': False,
+                'message': f'Order with payment ID {payment_id} not found'
+            }), 404
+        
+        # Try to save the order
+        db_result = db.add_order(order_to_recover['order_data'])
+        
+        if db_result['success']:
+            # Remove from failed orders file
+            with open(recovery_file, 'w') as f:
+                json.dump(remaining_orders, f, indent=2)
+            
+            print(f"✅ Recovered order: {db_result['order_number']}")
+            
+            return jsonify({
+                'success': True,
+                'message': 'Order recovered successfully',
+                'order_number': db_result['order_number'],
+                'order_id': db_result['order_id']
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'message': f'Failed to recover order: {db_result.get("error")}'
+            }), 500
+            
+    except Exception as e:
         return jsonify({
             'success': False,
             'message': str(e)
