@@ -517,6 +517,9 @@
                             <h3>Payment Information</h3>
                             <p><strong>Payment Method:</strong> ${order.payment_method.toUpperCase()}</p>
                             <p><strong>Total Amount:</strong> <strong style="font-size: 24px; color: #667eea;">₹${order.total_amount.toLocaleString('en-IN')}</strong></p>
+                            ${order.upi_id ? `<p><strong>UPI ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px;">${order.upi_id}</code></p>` : ''}
+                            ${order.razorpay_order_id ? `<p><strong>Razorpay Order ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${order.razorpay_order_id}</code></p>` : ''}
+                            ${order.razorpay_payment_id ? `<p><strong>Razorpay Payment ID:</strong> <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${order.razorpay_payment_id}</code></p>` : ''}
                         </div>
                     `;
                     
