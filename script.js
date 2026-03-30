@@ -733,6 +733,9 @@ async function verifyAndSaveOrder(paymentResponse, orderData, submitButton, orig
         if (saveResult.success) {
             console.log('✅ Order saved successfully:', saveResult.order_number);
             
+            // Check if order contains tree rental
+            const hasTreeRental = orderData.items.some(item => item.type === 'tree');
+            
             // Clear cart
             cart = [];
             localStorage.setItem('farmToHomeCart', JSON.stringify(cart));
@@ -745,9 +748,39 @@ async function verifyAndSaveOrder(paymentResponse, orderData, submitButton, orig
                 setTimeout(() => modal.remove(), 300);
             }
             
-            // Show success modal
-            showSuccessModal(orderData, saveResult.order_number);
-            showNotification('Payment successful! Order placed.', 'success');
+            // If tree rental, redirect to certificate page
+            if (hasTreeRental) {
+                console.log('🌳 Tree rental detected - redirecting to certificate page');
+                
+                // Get tree rental details
+                const treeItem = orderData.items.find(item => item.type === 'tree');
+                const planType = treeItem.name;
+                let expectedYield = '40-60 kg';
+                
+                // Determine yield based on plan
+                if (planType.includes('Starter')) {
+                    expectedYield = '15-25 kg';
+                } else if (planType.includes('Premium')) {
+                    expectedYield = '40-60 kg';
+                } else if (planType.includes('Royal')) {
+                    expectedYield = '80-120 kg';
+                }
+                
+                // Generate unique tree ID
+                const treeId = 'FTH-TREE-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                
+                // Redirect to certificate page with parameters
+                const certificateUrl = `certificate.html?name=${encodeURIComponent(orderData.customer.name)}&treeId=${treeId}&plan=${encodeURIComponent(planType)}&yield=${encodeURIComponent(expectedYield)}&orderNumber=${saveResult.order_number}`;
+                
+                showNotification('🎉 Redirecting to your certificate...', 'success');
+                setTimeout(() => {
+                    window.location.href = certificateUrl;
+                }, 2000);
+            } else {
+                // Show success modal for regular orders
+                showSuccessModal(orderData, saveResult.order_number);
+                showNotification('Payment successful! Order placed.', 'success');
+            }
         } else {
             throw new Error('Failed to save order');
         }

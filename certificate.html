@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Ownership Certificate - Farm to Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .certificate-container {
+            background: white;
+            max-width: 900px;
+            width: 100%;
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Border */
+        .certificate-container::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .certificate-container::after {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            right: 25px;
+            bottom: 25px;
+            border: 1px solid #FFA500;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Certificate Title */
+        .certificate-title {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .certificate-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .certificate-subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        /* Certificate Body */
+        .certificate-body {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .presented-to {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #FFD700;
+            margin: 20px 0;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .certificate-text {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.8;
+            margin: 30px 0;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Tree Details */
+        .tree-details {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #FFD700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tree-details h3 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        /* Signature Section */
+        .signature-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .signature {
+            text-align: center;
+        }
+
+        .signature-line {
+            width: 180px;
+            height: 2px;
+            background: #2c3e50;
+            margin: 0 auto 10px;
+        }
+
+        .signature-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .signature-title {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        /* Certificate Number */
+        .certificate-number {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #7f8c8d;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            text-align: center;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+
+        /* Decorative Elements */
+        .corner-decoration {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            opacity: 0.1;
+        }
+
+        .corner-decoration.top-left {
+            top: 40px;
+            left: 40px;
+            background: linear-gradient(135deg, #FFD700 0%, transparent 100%);
+            border-radius: 0 0 100% 0;
+        }
+
+        .corner-decoration.top-right {
+            top: 40px;
+            right: 40px;
+            background: linear-gradient(225deg, #FFD700 0%, transparent 100%);
+            border-radius: 0 0 0 100%;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 40px;
+            left: 40px;
+            background: linear-gradient(45deg, #FFD700 0%, transparent 100%);
+            border-radius: 0 100% 0 0;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 40px;
+            right: 40px;
+            background: linear-gradient(315deg, #FFD700 0%, transparent 100%);
+            border-radius: 100% 0 0 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .action-buttons {
+                display: none;
+            }
+            
+            .certificate-container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .certificate-container {
+                padding: 40px 30px;
+            }
+
+            .certificate-title h1 {
+                font-size: 32px;
+            }
+
+            .recipient-name {
+                font-size: 32px;
+            }
+
+            .signature-section {
+                flex-direction: column;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <!-- Decorative Corners -->
+        <div class="corner-decoration top-left"></div>
+        <div class="corner-decoration top-right"></div>
+        <div class="corner-decoration bottom-left"></div>
+        <div class="corner-decoration bottom-right"></div>
+
+        <!-- Header -->
+        <div class="certificate-header">
+            <div class="logo">🌳</div>
+            <div class="brand-name">FARM TO HOME</div>
+            <div class="tagline">Nature's Gold, Delivered Fresh</div>
+        </div>
+
+        <!-- Certificate Title -->
+        <div class="certificate-title">
+            <h1>Certificate of Ownership</h1>
+            <p class="certificate-subtitle">Mango Tree Rental Program</p>
+        </div>
+
+        <!-- Certificate Body -->
+        <div class="certificate-body">
+            <p class="presented-to">This Certificate is Proudly Presented to</p>
+            <h2 class="recipient-name" id="ownerName">John Doe</h2>
+            
+            <p class="certificate-text">
+                For becoming a proud owner of a premium mango tree in our certified organic orchards 
+                located in Chittoor, Andhra Pradesh. This tree has been exclusively reserved for you 
+                and will be nurtured with care to provide you with the finest quality mangoes.
+            </p>
+        </div>
+
+        <!-- Tree Details -->
+        <div class="tree-details">
+            <h3>🥭 Your Tree Details</h3>
+            <div class="detail-row">
+                <span class="detail-label">Tree ID:</span>
+                <span class="detail-value" id="treeId">FTH-TREE-001</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Plan Type:</span>
+                <span class="detail-value" id="planType">Premium Plan</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Expected Yield:</span>
+                <span class="detail-value" id="expectedYield">40-60 kg</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Rental Period:</span>
+                <span class="detail-value" id="rentalPeriod">1 Year</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Order Number:</span>
+                <span class="detail-value" id="orderNumber">FTH20260330180000</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Issue Date:</span>
+                <span class="detail-value" id="issueDate">30 March 2026</span>
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature">
+                <div class="signature-line"></div>
+                <div class="signature-name">Ashif Nihal</div>
+                <div class="signature-title">Founder & CTO</div>
+                <div class="signature-title">Farm to Home®</div>
+            </div>
+            <div class="signature">
+                <div class="signature-line"></div>
+                <div class="signature-name">Arif Nihal</div>
+                <div class="signature-title">Founder & CEO</div>
+                <div class="signature-title">Farm to Home®</div>
+            </div>
+            <div class="signature">
+                <div class="signature-line"></div>
+                <div class="signature-name">Abdul Rehman</div>
+                <div class="signature-title">Founder & CMO</div>
+                <div class="signature-title">Farm to Home®</div>
+            </div>
+        </div>
+
+        <!-- Certificate Number -->
+        <div class="certificate-number">
+            Certificate No: <span id="certificateNumber">FTH-CERT-2026-001</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="downloadCertificate()">
+                📥 Download Certificate
+            </button>
+            <button class="btn btn-secondary" onclick="printCertificate()">
+                🖨️ Print Certificate
+            </button>
+            <a href="dashboard.html" class="btn btn-secondary">
+                🏠 Go to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Get certificate data from URL parameters
+        function getCertificateData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                ownerName: urlParams.get('name') || 'Valued Customer',
+                treeId: urlParams.get('treeId') || 'FTH-TREE-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+                planType: urlParams.get('plan') || 'Premium Plan',
+                expectedYield: urlParams.get('yield') || '40-60 kg',
+                orderNumber: urlParams.get('orderNumber') || 'FTH' + new Date().getTime(),
+                issueDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+                certificateNumber: 'FTH-CERT-' + new Date().getFullYear() + '-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+            };
+        }
+
+        // Populate certificate with data
+        function populateCertificate() {
+            const data = getCertificateData();
+            
+            document.getElementById('ownerName').textContent = data.ownerName;
+            document.getElementById('treeId').textContent = data.treeId;
+            document.getElementById('planType').textContent = data.planType;
+            document.getElementById('expectedYield').textContent = data.expectedYield;
+            document.getElementById('rentalPeriod').textContent = '1 Year';
+            document.getElementById('orderNumber').textContent = data.orderNumber;
+            document.getElementById('issueDate').textContent = data.issueDate;
+            document.getElementById('certificateNumber').textContent = data.certificateNumber;
+        }
+
+        // Download certificate as image
+        function downloadCertificate() {
+            const certificate = document.querySelector('.certificate-container');
+            const buttons = document.querySelector('.action-buttons');
+            
+            // Hide buttons temporarily
+            buttons.style.display = 'none';
+            
+            html2canvas(certificate, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                // Show buttons again
+                buttons.style.display = 'block';
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'Farm-to-Home-Certificate-' + document.getElementById('treeId').textContent + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Print certificate
+        function printCertificate() {
+            window.print();
+        }
+
+        // Initialize certificate on page load
+        document.addEventListener('DOMContentLoaded', populateCertificate);
+    </script>
+</body>
+</html>
