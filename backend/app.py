@@ -8,6 +8,7 @@ from database import Database
 import razorpay
 import hmac
 import hashlib
+from security import PaymentSecurity, require_rate_limit, require_https
 
 # Load environment variables
 load_dotenv()
@@ -44,14 +45,38 @@ def health_check():
     }), 200
 
 @app.route('/api/place-order', methods=['POST'])
+@require_rate_limit(max_requests=5, window=60)  # Max 5 orders per minute
+@require_https()
 def place_order():
     """
     Endpoint to receive order and send email notification
     Enhanced with payment recovery for failed saves
+    SECURED: Rate limited + HTTPS required + Input validation
     """
+    security = PaymentSecurity()
+    
     try:
         # Get order data from request
         order_data = request.json
+        
+        # Sanitize input
+        order_data = security.sanitize_input(order_data)
+        
+        # Validate order data
+        valid, errors = security.validate_order_data(order_data)
+        if not valid:
+            security.log_security_event('INVALID_ORDER_DATA', f'Errors: {errors}')
+            return jsonify({
+                'success': False,
+                'message': 'Invalid order data',
+                'errors': errors
+            }), 400
+        
+        # Detect suspicious activity
+        warnings = security.detect_suspicious_activity(order_data)
+        if warnings:
+            security.log_security_event('SUSPICIOUS_ORDER', f'Warnings: {warnings}, IP: {request.remote_addr}')
+            print(f"⚠️  Suspicious activity detected: {warnings}")
         
         # Validate required fields
         required_fields = ['customer', 'items', 'total', 'payment']
@@ -674,8 +699,15 @@ def get_contacts():
         }), 500
 
 @app.route('/api/create-payment-order', methods=['POST'])
+@require_rate_limit(max_requests=10, window=60)  # Max 10 payment initiations per minute
+@require_https()
 def create_payment_order():
-    """Create Razorpay payment order - UPI only"""
+    """
+    Create Razorpay payment order - UPI only
+    SECURED: Rate limited + HTTPS required + Amount validation
+    """
+    security = PaymentSecurity()
+    
     try:
         if not razorpay_client:
             return jsonify({
@@ -686,11 +718,16 @@ def create_payment_order():
         data = request.json
         amount = data.get('amount')  # Amount in rupees
         
-        if not amount:
+        # Validate amount
+        valid, result = security.validate_amount(amount)
+        if not valid:
+            security.log_security_event('INVALID_AMOUNT', f'Amount: {amount}, IP: {request.remote_addr}')
             return jsonify({
                 'success': False,
-                'message': 'Amount is required'
+                'message': result
             }), 400
+        
+        amount = result  # Use validated amount
         
         # Create Razorpay order
         order_data = {
@@ -717,8 +754,15 @@ def create_payment_order():
         }), 500
 
 @app.route('/api/verify-payment', methods=['POST'])
+@require_rate_limit(max_requests=20, window=60)  # Max 20 verifications per minute
+@require_https()
 def verify_payment():
-    """Verify Razorpay payment signature"""
+    """
+    Verify Razorpay payment signature
+    SECURED: Rate limited + HTTPS required + Signature verification
+    """
+    security = PaymentSecurity()
+    
     try:
         data = request.json
         
@@ -739,14 +783,17 @@ def verify_payment():
             hashlib.sha256
         ).hexdigest()
         
-        if generated_signature == razorpay_signature:
+        # Use secure comparison
+        if security.verify_payment_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature, RAZORPAY_KEY_SECRET):
             print(f"✅ Payment verified successfully: {razorpay_payment_id}")
+            security.log_security_event('PAYMENT_VERIFIED', f'Payment ID: {razorpay_payment_id}')
             return jsonify({
                 'success': True,
                 'message': 'Payment verified successfully'
             }), 200
         else:
             print(f"❌ Payment verification failed")
+            security.log_security_event('PAYMENT_VERIFICATION_FAILED', f'Payment ID: {razorpay_payment_id}, IP: {request.remote_addr}')
             return jsonify({
                 'success': False,
                 'message': 'Payment verification failed'
