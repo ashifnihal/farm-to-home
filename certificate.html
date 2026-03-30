@@ -24,13 +24,14 @@
 
         .certificate-container {
             background: white;
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
-            padding: 60px;
+            padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
+            page-break-inside: avoid;
         }
 
         /* Decorative Border */
@@ -61,29 +62,38 @@
         /* Header */
         .certificate-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
             position: relative;
             z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
 
-        .logo {
-            font-size: 60px;
-            margin-bottom: 10px;
+        .logo-svg {
+            width: 80px;
+            height: 80px;
+        }
+
+        .brand-info {
+            text-align: left;
         }
 
         .brand-name {
             font-family: 'Playfair Display', serif;
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 900;
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            line-height: 1;
         }
 
         .tagline {
-            font-size: 14px;
+            font-size: 12px;
             color: #666;
             font-style: italic;
         }
@@ -98,15 +108,15 @@
 
         .certificate-title h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 48px;
+            font-size: 36px;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         .certificate-subtitle {
-            font-size: 18px;
+            font-size: 14px;
             color: #7f8c8d;
             font-weight: 500;
         }
@@ -129,19 +139,19 @@
 
         .recipient-name {
             font-family: 'Playfair Display', serif;
-            font-size: 42px;
+            font-size: 32px;
             color: #FFD700;
-            margin: 20px 0;
+            margin: 15px 0;
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .certificate-text {
-            font-size: 18px;
+            font-size: 14px;
             color: #555;
-            line-height: 1.8;
-            margin: 30px 0;
-            max-width: 700px;
+            line-height: 1.6;
+            margin: 20px 0;
+            max-width: 650px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -149,9 +159,9 @@
         /* Tree Details */
         .tree-details {
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
             border: 2px solid #FFD700;
             position: relative;
             z-index: 1;
@@ -159,15 +169,15 @@
 
         .tree-details h3 {
             color: #2c3e50;
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 18px;
+            margin-bottom: 15px;
             font-family: 'Playfair Display', serif;
         }
 
         .detail-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 8px 0;
             border-bottom: 1px solid rgba(255, 215, 0, 0.3);
         }
 
@@ -178,18 +188,20 @@
         .detail-label {
             font-weight: 600;
             color: #555;
+            font-size: 13px;
         }
 
         .detail-value {
             color: #2c3e50;
             font-weight: 500;
+            font-size: 13px;
         }
 
         /* Signature Section */
         .signature-section {
             display: flex;
             justify-content: space-around;
-            margin-top: 60px;
+            margin-top: 30px;
             position: relative;
             z-index: 1;
         }
@@ -199,28 +211,29 @@
         }
 
         .signature-line {
-            width: 180px;
+            width: 150px;
             height: 2px;
             background: #2c3e50;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
         }
 
         .signature-name {
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            font-size: 13px;
         }
 
         .signature-title {
-            font-size: 13px;
+            font-size: 11px;
             color: #7f8c8d;
         }
 
         /* Certificate Number */
         .certificate-number {
             text-align: center;
-            margin-top: 40px;
-            font-size: 14px;
+            margin-top: 25px;
+            font-size: 12px;
             color: #7f8c8d;
             position: relative;
             z-index: 1;
@@ -306,34 +319,56 @@
         @media print {
             body {
                 background: white;
+                padding: 0;
+                margin: 0;
             }
             
             .action-buttons {
-                display: none;
+                display: none !important;
             }
             
             .certificate-container {
                 box-shadow: none;
                 max-width: 100%;
+                width: 100%;
+                padding: 30px;
+                border-radius: 0;
+                page-break-inside: avoid;
+                page-break-after: avoid;
+                page-break-before: avoid;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0;
             }
         }
 
         @media (max-width: 768px) {
             .certificate-container {
-                padding: 40px 30px;
+                padding: 30px 20px;
             }
 
             .certificate-title h1 {
-                font-size: 32px;
+                font-size: 28px;
             }
 
             .recipient-name {
-                font-size: 32px;
+                font-size: 26px;
             }
 
             .signature-section {
                 flex-direction: column;
-                gap: 40px;
+                gap: 30px;
+            }
+            
+            .certificate-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .brand-info {
+                text-align: center;
             }
         }
     </style>
@@ -348,9 +383,36 @@
 
         <!-- Header -->
         <div class="certificate-header">
-            <div class="logo">🌳</div>
-            <div class="brand-name">FARM TO HOME</div>
-            <div class="tagline">Nature's Gold, Delivered Fresh</div>
+            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="premiumGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+                    </linearGradient>
+                    <radialGradient id="mangoGradient" cx="35%" cy="35%">
+                        <stop offset="0%" style="stop-color:#FFF4A3;stop-opacity:1" />
+                        <stop offset="30%" style="stop-color:#FFD54F;stop-opacity:1" />
+                        <stop offset="60%" style="stop-color:#FFB300;stop-opacity:1" />
+                        <stop offset="85%" style="stop-color:#FF8F00;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#E65100;stop-opacity:1" />
+                    </radialGradient>
+                </defs>
+                <circle cx="50" cy="50" r="48" fill="none" stroke="url(#premiumGold)" stroke-width="3"/>
+                <circle cx="50" cy="50" r="44" fill="none" stroke="url(#premiumGold)" stroke-width="1" opacity="0.5"/>
+                <path d="M 50 18 L 35 40 L 41 40 L 50 28 L 59 40 L 65 40 Z" fill="url(#premiumGold)"/>
+                <path d="M 50 42 Q 59 45, 63 54 Q 65 63, 61 70 Q 56 75, 50 76 Q 44 75, 39 70 Q 35 63, 37 54 Q 41 45, 50 42 Z" fill="url(#mangoGradient)"/>
+                <ellipse cx="46" cy="51" rx="7" ry="9" fill="#FFF9C4" opacity="0.6"/>
+                <ellipse cx="47" cy="53" rx="3.5" ry="4.5" fill="#FFFFFF" opacity="0.4"/>
+                <path d="M 50 42 Q 43 37, 38 40 Q 35 43, 38 48 Q 43 53, 50 50 Z" fill="#4CAF50" opacity="1"/>
+                <path d="M 50 42 Q 47 38, 43 40" fill="#66BB6A" opacity="0.6"/>
+                <text x="50" y="86" font-family="'Playfair Display', serif" font-size="18" font-weight="900" fill="url(#premiumGold)" text-anchor="middle" letter-spacing="3">F&amp;H</text>
+                <path d="M 32 91 Q 50 93, 68 91" stroke="url(#premiumGold)" stroke-width="1.5" fill="none" opacity="0.7"/>
+            </svg>
+            <div class="brand-info">
+                <div class="brand-name">FARM TO HOME</div>
+                <div class="tagline">Nature's Gold, Delivered Fresh</div>
+            </div>
         </div>
 
         <!-- Certificate Title -->
