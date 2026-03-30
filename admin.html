@@ -288,6 +288,14 @@
             </div>
         </div>
 
+        <div class="orders-section" style="margin-bottom: 30px;">
+            <h2>Registered Users</h2>
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+            <div id="users-table">
+                <div class="loading">Loading users...</div>
+            </div>
+        </div>
+
         <div class="orders-section">
             <h2>Recent Orders</h2>
             <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
@@ -341,6 +349,14 @@
                 
                 if (contactsData.success) {
                     displayContacts(contactsData.contacts);
+                }
+
+                // Load users
+                const usersResponse = await fetch(`${API_URL}/api/users`);
+                const usersData = await usersResponse.json();
+                
+                if (usersData.success) {
+                    displayUsers(usersData.users);
                 }
 
                 // Load orders
@@ -430,6 +446,43 @@
 
         function closeContactModal() {
             document.getElementById('contactModal').classList.remove('show');
+        }
+
+        function displayUsers(users) {
+            if (users.length === 0) {
+                document.getElementById('users-table').innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">No registered users yet.</p>';
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                            <th>Registered</th>
+                            <th>Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td><strong>#${user.id}</strong></td>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.phone}</td>
+                                <td>${user.city}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString('en-IN')}</td>
+                                <td>${user.last_login ? new Date(user.last_login).toLocaleDateString('en-IN') : 'Never'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('users-table').innerHTML = tableHTML;
         }
 
         function displayOrders(orders) {

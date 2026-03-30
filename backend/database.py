@@ -455,3 +455,19 @@ class Database:
         conn.commit()
         conn.close()
         return True
+    
+    def get_all_users(self, limit=100):
+        """Get all registered users (without password hashes)"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, name, email, phone, address, city, pincode, created_at, last_login
+            FROM users
+            ORDER BY created_at DESC
+            LIMIT ?
+        ''', (limit,))
+        
+        users = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return users

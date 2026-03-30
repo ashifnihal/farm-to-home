@@ -1044,6 +1044,22 @@ def login_user():
             'message': str(e)
         }), 500
 
+@app.route('/api/users', methods=['GET'])
+def get_all_users():
+    """Get all registered users"""
+    try:
+        users = db.get_all_users()
+        return jsonify({
+            'success': True,
+            'users': users,
+            'count': len(users)
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
 @app.route('/api/send-test-email', methods=['POST'])
 def send_test_email():
     """
