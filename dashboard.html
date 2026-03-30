@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard - Farm to Home</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             background: #f5f5f5;
@@ -55,6 +56,53 @@
             color: #667eea;
         }
 
+        /* Tab Navigation */
+        .tab-navigation {
+            background: white;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -82,6 +130,7 @@
             font-weight: bold;
         }
 
+        /* Orders Section */
         .orders-section {
             background: white;
             padding: 30px;
@@ -179,27 +228,52 @@
             margin-bottom: 5px;
         }
 
-        .order-items {
+        /* Profile Section */
+        .profile-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .profile-card {
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
         }
 
-        .order-items h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-
-        .order-item {
+        .profile-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
             display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+            gap: 10px;
         }
 
-        .order-item:last-child {
-            border-bottom: none;
+        .profile-item {
+            margin-bottom: 15px;
+        }
+
+        .profile-item label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .profile-item .value {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
         }
 
         .empty-state {
@@ -244,28 +318,101 @@
             </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Orders</h3>
-                <div class="value" id="totalOrders">0</div>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="tab-btn" onclick="switchTab('orders')">
+                <i class="fas fa-shopping-bag"></i> My Orders
+            </button>
+            <button class="tab-btn" onclick="switchTab('profile')">
+                <i class="fas fa-user"></i> My Profile
+            </button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Orders</h3>
+                    <div class="value" id="totalOrders">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Spent</h3>
+                    <div class="value" id="totalSpent">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Orders</h3>
+                    <div class="value" id="pendingOrders">0</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>Total Spent</h3>
-                <div class="value" id="totalSpent">₹0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Pending Orders</h3>
-                <div class="value" id="pendingOrders">0</div>
+
+            <div class="orders-section">
+                <div class="section-header">
+                    <h2>Recent Orders</h2>
+                    <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+                </div>
+                <div id="recentOrdersContainer">
+                    <div class="loading">Loading recent orders...</div>
+                </div>
             </div>
         </div>
 
-        <div class="orders-section">
-            <div class="section-header">
-                <h2>My Orders</h2>
-                <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="tab-content">
+            <div class="orders-section">
+                <div class="section-header">
+                    <h2>All Orders</h2>
+                    <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+                </div>
+                <div id="ordersContainer">
+                    <div class="loading">Loading your orders...</div>
+                </div>
             </div>
-            <div id="ordersContainer">
-                <div class="loading">Loading your orders...</div>
+        </div>
+
+        <!-- Profile Tab -->
+        <div id="profile-tab" class="tab-content">
+            <div class="profile-section">
+                <h2 style="margin-bottom: 20px;">My Profile</h2>
+                <div class="profile-grid">
+                    <div class="profile-card">
+                        <h3><i class="fas fa-user-circle"></i> Personal Information</h3>
+                        <div class="profile-item">
+                            <label>Full Name</label>
+                            <div class="value" id="profileName">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <label>Email Address</label>
+                            <div class="value" id="profileEmail">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <label>Phone Number</label>
+                            <div class="value" id="profilePhone">-</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
+                        <div class="profile-item">
+                            <label>Street Address</label>
+                            <div class="value" id="profileAddress">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <label>City</label>
+                            <div class="value" id="profileCity">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <label>State</label>
+                            <div class="value" id="profileState">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <label>PIN Code</label>
+                            <div class="value" id="profilePincode">-</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -273,6 +420,7 @@
     <script>
         const API_URL = 'http://localhost:5001';
         let currentUser = null;
+        let allOrders = [];
 
         // Check if user is logged in
         function checkAuth() {
@@ -284,12 +432,36 @@
             return JSON.parse(userStr);
         }
 
+        // Switch tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.closest('.tab-btn').classList.add('active');
+        }
+
         // Load user info
         function loadUserInfo() {
             currentUser = checkAuth();
             if (currentUser) {
                 document.getElementById('userName').textContent = currentUser.name;
                 document.getElementById('userEmail').textContent = currentUser.email;
+                
+                // Load profile info
+                document.getElementById('profileName').textContent = currentUser.name || '-';
+                document.getElementById('profileEmail').textContent = currentUser.email || '-';
+                document.getElementById('profilePhone').textContent = currentUser.phone || '-';
+                document.getElementById('profileAddress').textContent = currentUser.address || '-';
+                document.getElementById('profileCity').textContent = currentUser.city || '-';
+                document.getElementById('profileState').textContent = currentUser.state || '-';
+                document.getElementById('profilePincode').textContent = currentUser.pincode || '-';
             }
         }
 
@@ -302,7 +474,9 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    allOrders = data.orders;
                     displayOrders(data.orders);
+                    displayRecentOrders(data.orders.slice(0, 3)); // Show only 3 recent
                     updateStats(data.orders);
                 } else {
                     document.getElementById('ordersContainer').innerHTML = `
@@ -322,7 +496,51 @@
             }
         }
 
-        // Display orders
+        // Display recent orders (for dashboard tab)
+        function displayRecentOrders(orders) {
+            const container = document.getElementById('recentOrdersContainer');
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No orders yet</h3>
+                        <p>Start shopping to see your orders here!</p>
+                        <a href="shop.html" class="shop-btn">Shop Now</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-number">#${order.order_number}</div>
+                        <div class="order-status status-${order.order_status}">${order.order_status}</div>
+                    </div>
+                    <div class="order-details">
+                        <div class="order-detail-item">
+                            <strong>Order Date</strong>
+                            ${new Date(order.order_date).toLocaleDateString('en-IN', { 
+                                day: 'numeric', 
+                                month: 'long', 
+                                year: 'numeric' 
+                            })}
+                        </div>
+                        <div class="order-detail-item">
+                            <strong>Total Amount</strong>
+                            ₹${order.total_amount.toLocaleString('en-IN')}
+                        </div>
+                        <div class="order-detail-item">
+                            <strong>Payment Method</strong>
+                            ${order.payment_method.toUpperCase()}
+                        </div>
+                    </div>
+                    <button class="refresh-btn" onclick="viewOrderDetails(${order.id})">View Details</button>
+                </div>
+            `).join('');
+        }
+
+        // Display all orders (for orders tab)
         function displayOrders(orders) {
             const container = document.getElementById('ordersContainer');
 
