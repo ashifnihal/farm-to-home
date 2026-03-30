@@ -63,6 +63,7 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 customer_id INTEGER NOT NULL,
                 order_number TEXT UNIQUE NOT NULL,
+                order_type TEXT DEFAULT 'mango',
                 total_amount REAL NOT NULL,
                 payment_method TEXT NOT NULL,
                 upi_id TEXT,
@@ -74,6 +75,14 @@ class Database:
                 FOREIGN KEY (customer_id) REFERENCES customers (id)
             )
         ''')
+        
+        # Add order_type column if it doesn't exist (for existing databases)
+        try:
+            cursor.execute('ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT "mango"')
+            print("✅ Added order_type column to orders table")
+        except sqlite3.OperationalError:
+            # Column already exists
+            pass
         
         # Create order_items table
         cursor.execute('''
@@ -167,13 +176,21 @@ class Database:
             razorpay_order_id = order_data.get('razorpay_order_id')
             razorpay_payment_id = order_data.get('razorpay_payment_id')
             
+            # Determine order type based on items
+            order_type = 'mango'  # default
+            for item in order_data['items']:
+                if item.get('type') == 'tree':
+                    order_type = 'tree'
+                    break
+            
             # Insert order with 'placed' status
             cursor.execute('''
-                INSERT INTO orders (customer_id, order_number, total_amount, payment_method, upi_id, razorpay_order_id, razorpay_payment_id, order_status, order_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO orders (customer_id, order_number, order_type, total_amount, payment_method, upi_id, razorpay_order_id, razorpay_payment_id, order_status, order_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 customer_id,
                 order_number,
+                order_type,
                 order_data['total'],
                 order_data['payment'],
                 upi_id,
@@ -224,7 +241,7 @@ class Database:
         
         cursor.execute('''
             SELECT 
-                o.id, o.order_number, o.total_amount, o.payment_method, 
+                o.id, o.order_number, o.order_type, o.total_amount, o.payment_method, 
                 o.upi_id, o.razorpay_order_id, o.razorpay_payment_id,
                 o.order_status, o.order_date, o.created_at,
                 c.name as customer_name, c.email as customer_email, 
